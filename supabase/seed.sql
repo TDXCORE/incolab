@@ -164,13 +164,13 @@ INSERT INTO operations (
   '2025-01-22T10:30:00.000Z'
 ),
 (
-  'c8e34567-890b-4cde-af02-3456789bcdef', 'muestreo', 'assigned',
+  'c8e34567-890b-4cde-af02-3456789bcdef', 'muestreo', 'pending',
   NULL, NULL,
   'Asignado a Andrea López. Coordinando acceso a refinería.',
   '2025-01-22T13:45:00.000Z'
 ),
 (
-  'd9f45678-901c-4def-b023-456789cdefab', 'muestreo', 'urgent',
+  'd9f45678-901c-4def-b023-456789cdefab', 'muestreo', 'pending',
   NULL, NULL,
   'URGENTE - Asignado a Carlos Mendoza. Debe completarse antes de medianoche.',
   '2025-01-22T16:20:00.000Z'

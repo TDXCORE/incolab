@@ -146,7 +146,7 @@ export async function POST() {
         {
           reference_id: 'c8e34567-890b-4cde-af02-3456789bcdef',
           operation_type: 'muestreo',
-          status: 'assigned',
+          status: 'pending',
           started_at: null,
           completed_at: null,
           notes: 'Asignado a Andrea López. Coordinando acceso a refinería.',
@@ -155,7 +155,7 @@ export async function POST() {
         {
           reference_id: 'd9f45678-901c-4def-b023-456789cdefab',
           operation_type: 'muestreo',
-          status: 'urgent',
+          status: 'pending',
           started_at: null,
           completed_at: null,
           notes: 'URGENTE - Asignado a Carlos Mendoza. Debe completarse antes de medianoche.',
