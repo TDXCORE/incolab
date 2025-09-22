@@ -1,4 +1,4 @@
-import { getSupabaseClient } from '../client';
+import { getSupabaseBrowserClient } from '../clients/browser-client';
 import type { LabAnalysis, LabAnalysisInsert, LabAnalysisUpdate } from '../types/database';
 
 /**
@@ -10,7 +10,7 @@ export async function getLabAnalysis(options?: {
   limit?: number;
   offset?: number;
 }) {
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseBrowserClient();
 
   let query = supabase
     .from('lab_analysis')
@@ -67,7 +67,7 @@ export async function getMyLabAnalysis(userId: string) {
  * Get lab analysis waiting for samples (operations completed)
  */
 export async function getAnalysisWaitingSamples() {
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseBrowserClient();
 
   const { data, error } = await supabase
     .from('lab_analysis')
@@ -100,7 +100,7 @@ export async function getAnalysisWaitingSamples() {
  * Get lab analysis ready for processing (has samples)
  */
 export async function getAnalysisReadyForProcessing() {
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseBrowserClient();
 
   // Get analysis where the related operation is completed
   const { data, error } = await supabase
@@ -139,7 +139,7 @@ export async function getAnalysisReadyForProcessing() {
  * Assign analysis to an analyst
  */
 export async function assignAnalysisToUser(analysisId: string, userId: string) {
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseBrowserClient();
 
   const { data, error } = await supabase
     .from('lab_analysis')
@@ -162,7 +162,7 @@ export async function assignAnalysisToUser(analysisId: string, userId: string) {
  * Update analysis status and results
  */
 export async function updateLabAnalysis(id: string, updates: LabAnalysisUpdate) {
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseBrowserClient();
 
   // If completing the analysis, set completion timestamp
   if (updates.status === 'completed' && !updates.completed_at) {
@@ -226,7 +226,7 @@ export async function updateAnalysisResults(
  * Get lab analysis statistics for dashboard
  */
 export async function getLabAnalysisStats() {
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseBrowserClient();
 
   // Get total count
   const { count: total, error: totalError } = await supabase

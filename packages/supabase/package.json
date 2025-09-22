@@ -10,13 +10,19 @@
   },
   "prettier": "@kit/prettier-config",
   "exports": {
-    "./server-client": "./src/clients/server-client.ts",
+    "./server-client": {
+      "import": "./src/clients/server-client.ts",
+      "types": "./src/clients/server-client.ts"
+    },
     "./server-admin-client": "./src/clients/server-admin-client.ts",
     "./middleware-client": "./src/clients/middleware-client.ts",
     "./browser-client": "./src/clients/browser-client.ts",
+    "./client": "./src/client.ts",
     "./check-requires-mfa": "./src/check-requires-mfa.ts",
     "./require-user": "./src/require-user.ts",
     "./hooks/*": "./src/hooks/*.ts",
+    "./queries/*": "./src/queries/*.ts",
+    "./types/*": "./src/types/*.ts",
     "./database": "./src/database.types.ts",
     "./auth": "./src/auth.ts"
   },

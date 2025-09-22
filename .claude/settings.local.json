@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git remote set-url:*)",
       "Bash(git push:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

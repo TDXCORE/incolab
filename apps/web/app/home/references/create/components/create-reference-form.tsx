@@ -26,7 +26,7 @@ import {
 } from '@kit/ui/select';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { createReference } from '@kit/supabase/queries/references';
+import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
 
 // Schema de validación para el formulario
 const createReferenceSchema = z.object({
@@ -59,16 +59,35 @@ export function CreateReferenceForm() {
     setIsLoading(true);
 
     try {
-      // Create reference using Supabase
-      const reference = await createReference({
-        client_name: data.client_name,
-        client_contact: data.client_contact || null,
-        service_type: data.service_type,
-        sample_description: data.sample_description,
-        location: data.location,
-        priority: data.priority,
-        notes: data.notes || null,
-      });
+      const supabase = getSupabaseBrowserClient();
+
+      // Generate reference number using the database function
+      const { data: refNumber, error: refError } = await supabase
+        .rpc('generate_reference_number');
+
+      if (refError) {
+        throw new Error(`Error generating reference number: ${refError.message}`);
+      }
+
+      // Create the reference with the generated number
+      const { data: reference, error } = await supabase
+        .from('service_references')
+        .insert({
+          reference_number: refNumber as string,
+          client_name: data.client_name,
+          client_contact: data.client_contact || null,
+          service_type: data.service_type,
+          sample_description: data.sample_description,
+          location: data.location,
+          priority: data.priority,
+          notes: data.notes || null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(`Error creating reference: ${error.message}`);
+      }
 
       toast.success(`Referencia ${reference.reference_number} creada exitosamente`);
       router.push('/home/references');

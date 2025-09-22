@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getSupabaseClient } from '../client';
+import { getSupabaseBrowserClient } from '../clients/browser-client';
 
 /**
  * Hook to subscribe to real-time changes in service_references table
@@ -10,7 +10,7 @@ import { getSupabaseClient } from '../client';
  */
 export function useRealtimeReferences() {
   const queryClient = useQueryClient();
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseBrowserClient();
 
   useEffect(() => {
     // Subscribe to changes in service_references table
@@ -53,7 +53,7 @@ export function useRealtimeReferences() {
  */
 export function useRealtimeOperations() {
   const queryClient = useQueryClient();
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseBrowserClient();
 
   useEffect(() => {
     const channel = supabase
@@ -98,7 +98,7 @@ export function useRealtimeOperations() {
  */
 export function useRealtimeLabAnalysis() {
   const queryClient = useQueryClient();
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseBrowserClient();
 
   useEffect(() => {
     const channel = supabase

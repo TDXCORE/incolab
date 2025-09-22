@@ -14,7 +14,7 @@ import {
 import { Eye, Edit, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { getReferences } from '@kit/supabase/queries/references';
+import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
 
 // Mock data while we implement the API
 const mockReferences = [
@@ -78,7 +78,20 @@ function getServiceTypeBadge(serviceType: string) {
 export function ReferencesTable() {
   const { data: references, isLoading, error } = useQuery({
     queryKey: ['references'],
-    queryFn: () => getReferences({ limit: 50 }),
+    queryFn: async () => {
+      const supabase = getSupabaseBrowserClient();
+      const { data, error } = await supabase
+        .from('service_references')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        throw new Error(`Error fetching references: ${error.message}`);
+      }
+
+      return data;
+    },
     refetchOnWindowFocus: false,
   });
 

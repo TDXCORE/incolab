@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getReferenceById } from '@kit/supabase/queries/references';
+import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
 /**
  * Generate and download a certificate PDF for a reference
@@ -11,8 +11,23 @@ export async function GET(
   try {
     const referenceId = params.id;
 
+    // Get Supabase server client
+    const supabase = getSupabaseServerClient();
+
     // Get the reference with all related data
-    const reference = await getReferenceById(referenceId);
+    const { data: reference, error } = await supabase
+      .from('service_references')
+      .select(`
+        *,
+        operations (*),
+        lab_analysis (*)
+      `)
+      .eq('id', referenceId)
+      .single();
+
+    if (error) {
+      throw new Error(`Error fetching reference: ${error.message}`);
+    }
 
     if (!reference) {
       return NextResponse.json(
