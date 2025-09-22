@@ -7,13 +7,9 @@ INSERT INTO service_references (
   reference_number,
   client_name,
   client_contact,
-  client_email,
   service_type,
   sample_description,
   location,
-  sample_weight,
-  urgent,
-  special_instructions,
   status,
   created_at
 ) VALUES
@@ -22,14 +18,10 @@ INSERT INTO service_references (
   'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86',
   'REF-2025-001',
   'Minera El Cerrejón S.A.',
-  'Carlos Rodríguez',
   'carlos.rodriguez@cerrejon.com',
   'both',
   'Carbón bituminoso para análisis completo de calidad y certificación de cantidad para exportación',
   'Mina El Cerrejón, La Guajira',
-  5000.0,
-  false,
-  'Análisis completo proximate y ultimate, certificación para puerto de embarque',
   'completed',
   '2025-01-15T08:30:00.000Z'
 ),
@@ -37,14 +29,10 @@ INSERT INTO service_references (
   'fc603d39-eece-4d77-986f-30163d78e349',
   'REF-2025-002',
   'Industria Carboquímica XYZ Ltda.',
-  'María González',
   'maria.gonzalez@carboquimica.com',
   'quality_analysis',
   'Biomasa pelletizada para evaluación de poder calorífico y contenido de cenizas',
   'Planta Industrial Bogotá, Cundinamarca',
-  1200.0,
-  false,
-  'Evaluar viabilidad para mezcla con carbón térmico',
   'completed',
   '2025-01-18T14:15:00.000Z'
 ),
@@ -53,14 +41,10 @@ INSERT INTO service_references (
   '86816cb9-443d-45d0-8aa4-7adb9c6d54ff',
   'REF-2025-003',
   'Drummond Company Inc.',
-  'James Patterson',
   'j.patterson@drummondco.com',
   'quantity_certification',
   'Carbón térmico para exportación - certificación de cantidad y calidad básica',
   'Puerto de Ciénaga, Magdalena',
-  8500.0,
-  true,
-  'URGENTE: Buque zarpa mañana, requiere certificado inmediato',
   'in_progress',
   '2025-01-22T06:00:00.000Z'
 ),
@@ -68,14 +52,10 @@ INSERT INTO service_references (
   'b7f23456-789a-4bcd-9e01-23456789abcd',
   'REF-2025-004',
   'Carbones del Caribe S.A.S.',
-  'Ana Martínez',
   'ana.martinez@carbonescaribe.com',
   'both',
   'Carbón térmico nacional para análisis de combustibilidad y certificación',
   'Mina La Jagua, Cesar',
-  3200.0,
-  false,
-  'Muestra representativa de lote de 50,000 toneladas',
   'pending',
   '2025-01-22T10:30:00.000Z'
 ),
@@ -83,14 +63,10 @@ INSERT INTO service_references (
   'c8e34567-890b-4cde-af02-3456789bcdef',
   'REF-2025-005',
   'Ecopetrol S.A.',
-  'Luis Fernando Silva',
   'luis.silva@ecopetrol.com.co',
   'quality_analysis',
   'Coque de petróleo para análisis elemental y poder calorífico',
   'Refinería de Barrancabermeja, Santander',
-  800.0,
-  false,
-  'Análisis para proceso de co-combustión en termoeléctricas',
   'pending',
   '2025-01-22T13:45:00.000Z'
 ),
@@ -99,16 +75,46 @@ INSERT INTO service_references (
   'd9f45678-901c-4def-b023-456789cdefab',
   'REF-2025-006',
   'Grupo Prodeco (Glencore)',
-  'Roberto Pérez',
   'roberto.perez@prodeco.com.co',
   'both',
   'Carbón metalúrgico para análisis de calidad y certificación de embarque',
   'Mina Calenturitas, Cesar',
-  6800.0,
-  true,
-  'URGENTE: Contrato internacional requiere certificación en 24 horas',
   'pending',
   '2025-01-22T16:20:00.000Z'
+),
+-- Additional historical data
+(
+  uuid_generate_v4(),
+  'REF-2025-007',
+  'Anglo American Carbones',
+  's.miller@angloamerican.com',
+  'both',
+  'Carbón metalúrgico premium para siderúrgicas',
+  'Mina El Paso, Cesar',
+  'completed',
+  '2025-01-10T09:00:00.000Z'
+),
+(
+  uuid_generate_v4(),
+  'REF-2025-008',
+  'Termocandelaria S.A.',
+  'f.ayala@termocandelaria.com',
+  'quality_analysis',
+  'Carbón térmico para planta termoeléctrica',
+  'Puerto Bolívar, La Guajira',
+  'completed',
+  '2025-01-12T11:30:00.000Z'
+),
+(
+  uuid_generate_v4(),
+  'REF-2025-009',
+  'Carbones de Colombia S.A.',
+  'a.ruiz@carbocoal.com',
+  'quantity_certification',
+  'Certificación de embarque carbón térmico',
+  'Puerto de Santa Marta',
+  'completed',
+  '2025-01-08T07:15:00.000Z'
 );
 
 -- Insert operations based on the service references
@@ -222,21 +228,3 @@ INSERT INTO lab_analysis (
   'URGENTE - Dr. Morales en standby para análisis inmediato al recibir muestra.',
   '2025-01-22T16:20:00.000Z'
 );
-
--- Insert some additional historical data for better demo statistics
-INSERT INTO service_references (
-  reference_number, client_name, client_contact, client_email,
-  service_type, sample_description, location, sample_weight,
-  urgent, special_instructions, status, created_at
-) VALUES
-('REF-2025-007', 'Anglo American Carbones', 'Susan Miller', 's.miller@angloamerican.com',
- 'both', 'Carbón metalúrgico premium para siderúrgicas', 'Mina El Paso, Cesar', 4500.0,
- false, 'Especificaciones técnicas para cliente japonés', 'completed', '2025-01-10T09:00:00.000Z'),
-
-('REF-2025-008', 'Termocandelaria S.A.', 'Fernando Ayala', 'f.ayala@termocandelaria.com',
- 'quality_analysis', 'Carbón térmico para planta termoeléctrica', 'Puerto Bolívar, La Guajira', 2800.0,
- false, 'Análisis de calidad para contrato mensual', 'completed', '2025-01-12T11:30:00.000Z'),
-
-('REF-2025-009', 'Carbones de Colombia S.A.', 'Alejandra Ruiz', 'a.ruiz@carbocoal.com',
- 'quantity_certification', 'Certificación de embarque carbón térmico', 'Puerto de Santa Marta', 7200.0,
- true, 'Certificación urgente para buque en puerto', 'completed', '2025-01-08T07:15:00.000Z');
