@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kit/ui/card';
 import { Badge } from '@kit/ui/badge';
 import { Button } from '@kit/ui/button';
@@ -12,7 +14,6 @@ import {
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
-
 
 function getStatusBadge(status: string) {
   const statusConfig = {
@@ -35,22 +36,16 @@ function getStatusBadge(status: string) {
 }
 
 export default function OperationsPage() {
+  // Simple query without complex relations
   const { data: operations, isLoading, error } = useQuery({
-    queryKey: ['operations'],
+    queryKey: ['operations-simple'],
     queryFn: async () => {
       const supabase = getSupabaseBrowserClient();
 
       try {
         const { data, error } = await supabase
           .from('operations')
-          .select(`
-            *,
-            service_references!inner(
-              reference_number,
-              client_name,
-              location
-            )
-          `)
+          .select('*')
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -64,7 +59,7 @@ export default function OperationsPage() {
         throw err;
       }
     },
-    retry: 3,
+    retry: 2,
     retryDelay: 1000,
   });
 
@@ -74,6 +69,7 @@ export default function OperationsPage() {
     completed: operations?.filter(op => op.status === 'completed').length || 0,
     efficiency: '95%'
   };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -170,27 +166,21 @@ export default function OperationsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Referencia</TableHead>
-                    <TableHead>Cliente</TableHead>
+                    <TableHead>ID Operación</TableHead>
                     <TableHead>Tipo</TableHead>
-                    <TableHead>Ubicación</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead>Fecha</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {operations?.map((operation) => (
+                  {operations.map((operation) => (
                     <TableRow key={operation.id}>
                       <TableCell className="font-medium">
-                        {operation.service_references?.reference_number}
+                        {operation.reference_id?.slice(0, 8)}...
                       </TableCell>
-                      <TableCell>{operation.service_references?.client_name}</TableCell>
                       <TableCell className="capitalize">
                         {operation.operation_type}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {operation.service_references?.location}
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(operation.status)}

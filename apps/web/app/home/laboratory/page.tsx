@@ -35,28 +35,37 @@ function getStatusBadge(status: string) {
 }
 
 export default function LaboratoryPage() {
-  const { data: labAnalysis, isLoading } = useQuery({
+  const { data: labAnalysis, isLoading, error } = useQuery({
     queryKey: ['lab_analysis'],
     queryFn: async () => {
       const supabase = getSupabaseBrowserClient();
-      const { data, error } = await supabase
-        .from('lab_analysis')
-        .select(`
-          *,
-          service_references(
-            reference_number,
-            client_name,
-            sample_description
-          )
-        `)
-        .order('created_at', { ascending: false });
 
-      if (error) {
-        throw new Error(`Error fetching lab analysis: ${error.message}`);
+      try {
+        const { data, error } = await supabase
+          .from('lab_analysis')
+          .select(`
+            *,
+            service_references!inner(
+              reference_number,
+              client_name,
+              sample_description
+            )
+          `)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+
+        return data || [];
+      } catch (err) {
+        console.error('Query error:', err);
+        throw err;
       }
-
-      return data;
     },
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const stats = {
@@ -167,6 +176,13 @@ export default function LaboratoryPage() {
           {isLoading ? (
             <div className="text-center py-8">
               <div className="text-sm text-muted-foreground">Cargando análisis...</div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <div className="text-sm font-medium text-red-600">Error al cargar análisis</div>
+              <div className="text-sm text-muted-foreground mt-1">
+                {error instanceof Error ? error.message : 'Error desconocido'}
+              </div>
             </div>
           ) : !labAnalysis || labAnalysis.length === 0 ? (
             <div className="text-center py-8">
