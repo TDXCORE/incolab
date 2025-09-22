@@ -235,7 +235,7 @@ export default function LaboratoryPage() {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))
+                  ))}
                 </TableBody>
               </Table>
             </div>

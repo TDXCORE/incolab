@@ -188,7 +188,7 @@ export default function OperationsPage() {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))
+                  ))}
                 </TableBody>
               </Table>
             </div>
