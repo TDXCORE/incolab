@@ -127,49 +127,48 @@ INSERT INTO operations (
   id,
   reference_id,
   operation_type,
-  assigned_operator,
   status,
-  scheduled_date,
-  completed_date,
+  started_at,
+  completed_at,
   notes,
   created_at
 ) VALUES
 -- Completed operations
 (
-  'op001', 'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86', 'muestreo', 'Carlos Mendoza', 'completed',
+  'op001', 'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86', 'muestreo', 'completed',
   '2025-01-15T10:00:00.000Z', '2025-01-15T12:30:00.000Z',
-  'Muestreo completo realizado según protocolo ASTM D2013. Muestra representativa obtenida.',
+  'Muestreo completo realizado según protocolo ASTM D2013. Muestra representativa obtenida. Operador: Carlos Mendoza',
   '2025-01-15T08:30:00.000Z'
 ),
 (
-  'op002', 'fc603d39-eece-4d77-986f-30163d78e349', 'muestreo', 'Andrea López', 'completed',
+  'op002', 'fc603d39-eece-4d77-986f-30163d78e349', 'muestreo', 'completed',
   '2025-01-18T16:00:00.000Z', '2025-01-18T17:45:00.000Z',
-  'Muestreo de biomasa pelletizada completado. Muestra homogénea obtenida.',
+  'Muestreo de biomasa pelletizada completado. Muestra homogénea obtenida. Operador: Andrea López',
   '2025-01-18T14:15:00.000Z'
 ),
 -- Active operations
 (
-  'op003', '86816cb9-443d-45d0-8aa4-7adb9c6d54ff', 'muestreo', 'Carlos Mendoza', 'in_progress',
+  'op003', '86816cb9-443d-45d0-8aa4-7adb9c6d54ff', 'muestreo', 'in_progress',
   '2025-01-22T08:00:00.000Z', NULL,
-  'En puerto realizando muestreo. Proceso al 60%. Muestra de barcaza completada.',
+  'En puerto realizando muestreo. Proceso al 60%. Muestra de barcaza completada. Operador: Carlos Mendoza',
   '2025-01-22T06:00:00.000Z'
 ),
 -- Pending operations
 (
-  'op004', 'b7f23456-789a-4bcd-9e01-23456789abcd', 'muestreo', NULL, 'pending',
-  '2025-01-23T09:00:00.000Z', NULL,
+  'op004', 'b7f23456-789a-4bcd-9e01-23456789abcd', 'muestreo', 'pending',
+  NULL, NULL,
   'Pendiente asignación de operador y coordinación de acceso a mina.',
   '2025-01-22T10:30:00.000Z'
 ),
 (
-  'op005', 'c8e34567-890b-4cde-af02-3456789bcdef', 'muestreo', 'Andrea López', 'assigned',
-  '2025-01-23T14:00:00.000Z', NULL,
+  'op005', 'c8e34567-890b-4cde-af02-3456789bcdef', 'muestreo', 'assigned',
+  NULL, NULL,
   'Asignado a Andrea López. Coordinando acceso a refinería.',
   '2025-01-22T13:45:00.000Z'
 ),
 (
-  'op006', 'd9f45678-901c-4def-b023-456789cdefab', 'muestreo', 'Carlos Mendoza', 'urgent',
-  '2025-01-22T18:00:00.000Z', NULL,
+  'op006', 'd9f45678-901c-4def-b023-456789cdefab', 'muestreo', 'urgent',
+  NULL, NULL,
   'URGENTE - Asignado a Carlos Mendoza. Debe completarse antes de medianoche.',
   '2025-01-22T16:20:00.000Z'
 );
