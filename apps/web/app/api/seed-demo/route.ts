@@ -7,11 +7,11 @@ export async function POST() {
 
     console.log('🌱 Starting demo data seeding...');
 
-    // Clear existing data first
-    console.log('🧹 Clearing existing data...');
-    await supabase.from('lab_analysis').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('operations').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('service_references').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    // Clear existing demo data first
+    console.log('🧹 Clearing existing demo data...');
+    await supabase.from('lab_analysis').delete().like('id', 'lab%');
+    await supabase.from('operations').delete().like('id', 'op%');
+    await supabase.from('service_references').delete().like('reference_number', 'REF-2025-%');
 
     console.log('📝 Inserting service references...');
     const { error: referencesError } = await supabase
