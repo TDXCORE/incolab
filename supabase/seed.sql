@@ -179,58 +179,52 @@ INSERT INTO operations (
 -- Insert lab analysis records
 INSERT INTO lab_analysis (
   reference_id,
-  assigned_analyst,
   status,
-  sample_received_date,
-  analysis_start_date,
-  analysis_completion_date,
-  moisture_content,
-  ash_content,
-  volatile_matter,
-  fixed_carbon,
-  sulfur_content,
-  calorific_value,
-  lab_notes,
+  sample_received_at,
+  started_at,
+  completed_at,
+  results,
+  notes,
   created_at
 ) VALUES
 -- Completed analyses
 (
-  'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86', 'Dr. Patricia Morales', 'completed',
+  'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86', 'completed',
   '2025-01-15T13:00:00.000Z', '2025-01-16T08:00:00.000Z', '2025-01-17T16:00:00.000Z',
-  8.2, 12.5, 35.8, 43.5, 0.65, 6250.0,
-  'Análisis completo realizado. Carbón de excelente calidad para exportación.',
+  '{"humedad": {"value": 8.2, "unit": "%", "method": "ISO 589"}, "cenizas": {"value": 12.5, "unit": "%", "method": "ISO 1171"}, "azufre": {"value": 0.65, "unit": "%", "method": "ISO 19579"}, "poder_calorifico": {"value": 6250, "unit": "kcal/kg", "method": "ISO 1928"}, "carbono_fijo": {"value": 43.5, "unit": "%"}, "materia_volatil": {"value": 35.8, "unit": "%"}, "observaciones": "Carbón de excelente calidad para exportación"}',
+  'Análisis completo realizado por Dr. Patricia Morales. Carbón de excelente calidad para exportación.',
   '2025-01-15T08:30:00.000Z'
 ),
 (
-  'fc603d39-eece-4d77-986f-30163d78e349', 'Ing. Roberto Castillo', 'completed',
+  'fc603d39-eece-4d77-986f-30163d78e349', 'completed',
   '2025-01-18T18:00:00.000Z', '2025-01-19T09:00:00.000Z', '2025-01-20T15:30:00.000Z',
-  10.5, 4.2, 78.3, 7.0, 0.08, 4850.0,
-  'Biomasa de alta calidad. Bajo contenido de azufre ideal para co-combustión.',
+  '{"humedad": {"value": 10.5, "unit": "%", "method": "ISO 589"}, "cenizas": {"value": 4.2, "unit": "%", "method": "ISO 1171"}, "azufre": {"value": 0.08, "unit": "%", "method": "ISO 19579"}, "poder_calorifico": {"value": 4850, "unit": "kcal/kg", "method": "ISO 1928"}, "carbono_fijo": {"value": 7.0, "unit": "%"}, "materia_volatil": {"value": 78.3, "unit": "%"}, "observaciones": "Biomasa de alta calidad, bajo contenido de azufre ideal para co-combustión"}',
+  'Análisis realizado por Ing. Roberto Castillo. Biomasa de alta calidad.',
   '2025-01-18T14:15:00.000Z'
 ),
 -- Active analyses
 (
-  '86816cb9-443d-45d0-8aa4-7adb9c6d54ff', 'Dr. Patricia Morales', 'in_analysis',
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  'Esperando muestra del puerto. Análisis programado para inicio inmediato.',
+  '86816cb9-443d-45d0-8aa4-7adb9c6d54ff', 'in_analysis',
+  NULL, NULL, NULL, NULL,
+  'Esperando muestra del puerto. Dr. Patricia Morales asignada para análisis inmediato.',
   '2025-01-22T06:00:00.000Z'
 ),
 -- Waiting for samples
 (
-  'b7f23456-789a-4bcd-9e01-23456789abcd', NULL, 'waiting_sample',
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  'b7f23456-789a-4bcd-9e01-23456789abcd', 'waiting_sample',
+  NULL, NULL, NULL, NULL,
   'Esperando recepción de muestra de operaciones.',
   '2025-01-22T10:30:00.000Z'
 ),
 (
-  'c8e34567-890b-4cde-af02-3456789bcdef', 'Ing. Roberto Castillo', 'waiting_sample',
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  'Analista asignado. Esperando muestra de refinería.',
+  'c8e34567-890b-4cde-af02-3456789bcdef', 'waiting_sample',
+  NULL, NULL, NULL, NULL,
+  'Ing. Roberto Castillo asignado. Esperando muestra de refinería.',
   '2025-01-22T13:45:00.000Z'
 ),
 (
-  'd9f45678-901c-4def-b023-456789cdefab', 'Dr. Patricia Morales', 'waiting_sample',
-  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  'URGENTE - Dr. Morales en standby para análisis inmediato al recibir muestra.',
+  'd9f45678-901c-4def-b023-456789cdefab', 'waiting_sample',
+  NULL, NULL, NULL, NULL,
+  'URGENTE - Dr. Patricia Morales en standby para análisis inmediato al recibir muestra.',
   '2025-01-22T16:20:00.000Z'
 );
