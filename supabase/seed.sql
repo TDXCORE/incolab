@@ -2,8 +2,12 @@
 -- This creates realistic data for the Incolab system demo
 
 -- Clear existing demo data first
-DELETE FROM lab_analysis WHERE id::text LIKE 'lab%';
-DELETE FROM operations WHERE id::text LIKE 'op%';
+DELETE FROM lab_analysis WHERE reference_id IN (
+  SELECT id FROM service_references WHERE reference_number LIKE 'REF-2025-%'
+);
+DELETE FROM operations WHERE reference_id IN (
+  SELECT id FROM service_references WHERE reference_number LIKE 'REF-2025-%'
+);
 DELETE FROM service_references WHERE reference_number LIKE 'REF-2025-%';
 
 -- Insert demo service references
@@ -124,7 +128,6 @@ INSERT INTO service_references (
 
 -- Insert operations based on the service references
 INSERT INTO operations (
-  id,
   reference_id,
   operation_type,
   status,
@@ -135,39 +138,39 @@ INSERT INTO operations (
 ) VALUES
 -- Completed operations
 (
-  'op001', 'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86', 'muestreo', 'completed',
+  'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86', 'muestreo', 'completed',
   '2025-01-15T10:00:00.000Z', '2025-01-15T12:30:00.000Z',
   'Muestreo completo realizado según protocolo ASTM D2013. Muestra representativa obtenida. Operador: Carlos Mendoza',
   '2025-01-15T08:30:00.000Z'
 ),
 (
-  'op002', 'fc603d39-eece-4d77-986f-30163d78e349', 'muestreo', 'completed',
+  'fc603d39-eece-4d77-986f-30163d78e349', 'muestreo', 'completed',
   '2025-01-18T16:00:00.000Z', '2025-01-18T17:45:00.000Z',
   'Muestreo de biomasa pelletizada completado. Muestra homogénea obtenida. Operador: Andrea López',
   '2025-01-18T14:15:00.000Z'
 ),
 -- Active operations
 (
-  'op003', '86816cb9-443d-45d0-8aa4-7adb9c6d54ff', 'muestreo', 'in_progress',
+  '86816cb9-443d-45d0-8aa4-7adb9c6d54ff', 'muestreo', 'in_progress',
   '2025-01-22T08:00:00.000Z', NULL,
   'En puerto realizando muestreo. Proceso al 60%. Muestra de barcaza completada. Operador: Carlos Mendoza',
   '2025-01-22T06:00:00.000Z'
 ),
 -- Pending operations
 (
-  'op004', 'b7f23456-789a-4bcd-9e01-23456789abcd', 'muestreo', 'pending',
+  'b7f23456-789a-4bcd-9e01-23456789abcd', 'muestreo', 'pending',
   NULL, NULL,
   'Pendiente asignación de operador y coordinación de acceso a mina.',
   '2025-01-22T10:30:00.000Z'
 ),
 (
-  'op005', 'c8e34567-890b-4cde-af02-3456789bcdef', 'muestreo', 'assigned',
+  'c8e34567-890b-4cde-af02-3456789bcdef', 'muestreo', 'assigned',
   NULL, NULL,
   'Asignado a Andrea López. Coordinando acceso a refinería.',
   '2025-01-22T13:45:00.000Z'
 ),
 (
-  'op006', 'd9f45678-901c-4def-b023-456789cdefab', 'muestreo', 'urgent',
+  'd9f45678-901c-4def-b023-456789cdefab', 'muestreo', 'urgent',
   NULL, NULL,
   'URGENTE - Asignado a Carlos Mendoza. Debe completarse antes de medianoche.',
   '2025-01-22T16:20:00.000Z'
@@ -175,7 +178,6 @@ INSERT INTO operations (
 
 -- Insert lab analysis records
 INSERT INTO lab_analysis (
-  id,
   reference_id,
   assigned_analyst,
   status,
@@ -193,14 +195,14 @@ INSERT INTO lab_analysis (
 ) VALUES
 -- Completed analyses
 (
-  'lab001', 'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86', 'Dr. Patricia Morales', 'completed',
+  'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86', 'Dr. Patricia Morales', 'completed',
   '2025-01-15T13:00:00.000Z', '2025-01-16T08:00:00.000Z', '2025-01-17T16:00:00.000Z',
   8.2, 12.5, 35.8, 43.5, 0.65, 6250.0,
   'Análisis completo realizado. Carbón de excelente calidad para exportación.',
   '2025-01-15T08:30:00.000Z'
 ),
 (
-  'lab002', 'fc603d39-eece-4d77-986f-30163d78e349', 'Ing. Roberto Castillo', 'completed',
+  'fc603d39-eece-4d77-986f-30163d78e349', 'Ing. Roberto Castillo', 'completed',
   '2025-01-18T18:00:00.000Z', '2025-01-19T09:00:00.000Z', '2025-01-20T15:30:00.000Z',
   10.5, 4.2, 78.3, 7.0, 0.08, 4850.0,
   'Biomasa de alta calidad. Bajo contenido de azufre ideal para co-combustión.',
@@ -208,26 +210,26 @@ INSERT INTO lab_analysis (
 ),
 -- Active analyses
 (
-  'lab003', '86816cb9-443d-45d0-8aa4-7adb9c6d54ff', 'Dr. Patricia Morales', 'in_analysis',
+  '86816cb9-443d-45d0-8aa4-7adb9c6d54ff', 'Dr. Patricia Morales', 'in_analysis',
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   'Esperando muestra del puerto. Análisis programado para inicio inmediato.',
   '2025-01-22T06:00:00.000Z'
 ),
 -- Waiting for samples
 (
-  'lab004', 'b7f23456-789a-4bcd-9e01-23456789abcd', NULL, 'waiting_sample',
+  'b7f23456-789a-4bcd-9e01-23456789abcd', NULL, 'waiting_sample',
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   'Esperando recepción de muestra de operaciones.',
   '2025-01-22T10:30:00.000Z'
 ),
 (
-  'lab005', 'c8e34567-890b-4cde-af02-3456789bcdef', 'Ing. Roberto Castillo', 'waiting_sample',
+  'c8e34567-890b-4cde-af02-3456789bcdef', 'Ing. Roberto Castillo', 'waiting_sample',
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   'Analista asignado. Esperando muestra de refinería.',
   '2025-01-22T13:45:00.000Z'
 ),
 (
-  'lab006', 'd9f45678-901c-4def-b023-456789cdefab', 'Dr. Patricia Morales', 'waiting_sample',
+  'd9f45678-901c-4def-b023-456789cdefab', 'Dr. Patricia Morales', 'waiting_sample',
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   'URGENTE - Dr. Morales en standby para análisis inmediato al recibir muestra.',
   '2025-01-22T16:20:00.000Z'

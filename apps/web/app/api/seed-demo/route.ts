@@ -10,9 +10,7 @@ export async function POST() {
     // Clear existing demo data first
     console.log('🧹 Clearing existing demo data...');
 
-    // Delete specific demo records by their known IDs
-    const demoLabIds = ['lab001', 'lab002', 'lab003', 'lab004', 'lab005', 'lab006'];
-    const demoOpIds = ['op001', 'op002', 'op003', 'op004', 'op005', 'op006'];
+    // Delete demo records by reference pattern
     const demoRefIds = [
       'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86',
       'fc603d39-eece-4d77-986f-30163d78e349',
@@ -22,8 +20,8 @@ export async function POST() {
       'd9f45678-901c-4def-b023-456789cdefab'
     ];
 
-    await supabase.from('lab_analysis').delete().in('id', demoLabIds);
-    await supabase.from('operations').delete().in('id', demoOpIds);
+    await supabase.from('lab_analysis').delete().in('reference_id', demoRefIds);
+    await supabase.from('operations').delete().in('reference_id', demoRefIds);
     await supabase.from('service_references').delete().in('id', demoRefIds);
 
     // Also clear by reference number pattern
@@ -110,7 +108,6 @@ export async function POST() {
       .from('operations')
       .insert([
         {
-          id: 'op001',
           reference_id: 'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86',
           operation_type: 'muestreo',
           status: 'completed',
@@ -120,7 +117,6 @@ export async function POST() {
           created_at: '2025-01-15T08:30:00.000Z'
         },
         {
-          id: 'op002',
           reference_id: 'fc603d39-eece-4d77-986f-30163d78e349',
           operation_type: 'muestreo',
           status: 'completed',
@@ -130,7 +126,6 @@ export async function POST() {
           created_at: '2025-01-18T14:15:00.000Z'
         },
         {
-          id: 'op003',
           reference_id: '86816cb9-443d-45d0-8aa4-7adb9c6d54ff',
           operation_type: 'muestreo',
           status: 'in_progress',
@@ -140,7 +135,6 @@ export async function POST() {
           created_at: '2025-01-22T06:00:00.000Z'
         },
         {
-          id: 'op004',
           reference_id: 'b7f23456-789a-4bcd-9e01-23456789abcd',
           operation_type: 'muestreo',
           status: 'pending',
@@ -150,7 +144,6 @@ export async function POST() {
           created_at: '2025-01-22T10:30:00.000Z'
         },
         {
-          id: 'op005',
           reference_id: 'c8e34567-890b-4cde-af02-3456789bcdef',
           operation_type: 'muestreo',
           status: 'assigned',
@@ -160,7 +153,6 @@ export async function POST() {
           created_at: '2025-01-22T13:45:00.000Z'
         },
         {
-          id: 'op006',
           reference_id: 'd9f45678-901c-4def-b023-456789cdefab',
           operation_type: 'muestreo',
           status: 'urgent',
@@ -180,7 +172,6 @@ export async function POST() {
       .from('lab_analysis')
       .insert([
         {
-          id: 'lab001',
           reference_id: 'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86',
           assigned_analyst: 'Dr. Patricia Morales',
           status: 'completed',
@@ -197,7 +188,6 @@ export async function POST() {
           created_at: '2025-01-15T08:30:00.000Z'
         },
         {
-          id: 'lab002',
           reference_id: 'fc603d39-eece-4d77-986f-30163d78e349',
           assigned_analyst: 'Ing. Roberto Castillo',
           status: 'completed',
@@ -214,7 +204,6 @@ export async function POST() {
           created_at: '2025-01-18T14:15:00.000Z'
         },
         {
-          id: 'lab003',
           reference_id: '86816cb9-443d-45d0-8aa4-7adb9c6d54ff',
           assigned_analyst: 'Dr. Patricia Morales',
           status: 'in_analysis',
@@ -231,7 +220,6 @@ export async function POST() {
           created_at: '2025-01-22T06:00:00.000Z'
         },
         {
-          id: 'lab004',
           reference_id: 'b7f23456-789a-4bcd-9e01-23456789abcd',
           assigned_analyst: null,
           status: 'waiting_sample',
@@ -248,7 +236,6 @@ export async function POST() {
           created_at: '2025-01-22T10:30:00.000Z'
         },
         {
-          id: 'lab005',
           reference_id: 'c8e34567-890b-4cde-af02-3456789bcdef',
           assigned_analyst: 'Ing. Roberto Castillo',
           status: 'waiting_sample',
@@ -265,7 +252,6 @@ export async function POST() {
           created_at: '2025-01-22T13:45:00.000Z'
         },
         {
-          id: 'lab006',
           reference_id: 'd9f45678-901c-4def-b023-456789cdefab',
           assigned_analyst: 'Dr. Patricia Morales',
           status: 'waiting_sample',
