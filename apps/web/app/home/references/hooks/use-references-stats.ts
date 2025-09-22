@@ -15,33 +15,35 @@ export function useReferencesStats() {
         .select('*', { count: 'exact', head: true });
 
       if (totalError) {
-        throw new Error(`Error getting total count: ${totalError.message}`);
+        throw new Error(`Error fetching total count: ${totalError.message}`);
       }
 
-      // Get count by status
-      const { data: statusData, error: statusError } = await supabase
+      // Get counts by status
+      const { data: statusCounts, error: statusError } = await supabase
         .from('service_references')
-        .select('status');
+        .select('status')
+        .not('status', 'is', null);
 
       if (statusError) {
-        throw new Error(`Error getting status counts: ${statusError.message}`);
+        throw new Error(`Error fetching status counts: ${statusError.message}`);
       }
 
-      const statusCounts = statusData.reduce((acc, ref) => {
-        acc[ref.status] = (acc[ref.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      // Calculate stats
+      const pending = statusCounts.filter(ref => ref.status === 'pending').length;
+      const in_progress = statusCounts.filter(ref => ref.status === 'in_progress').length;
+      const completed = statusCounts.filter(ref => ref.status === 'completed').length;
+      const cancelled = statusCounts.filter(ref => ref.status === 'cancelled').length;
+      const on_hold = statusCounts.filter(ref => ref.status === 'on_hold').length;
 
       return {
         total: total || 0,
-        pending: statusCounts?.pending || 0,
-        in_progress: statusCounts?.in_progress || 0,
-        completed: statusCounts?.completed || 0,
-        cancelled: statusCounts?.cancelled || 0,
-        on_hold: statusCounts?.on_hold || 0,
+        pending,
+        in_progress,
+        completed,
+        cancelled,
+        on_hold,
       };
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
 }

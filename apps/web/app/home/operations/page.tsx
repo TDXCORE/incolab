@@ -10,30 +10,9 @@ import {
   TableRow,
 } from '@kit/ui/table';
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
 
-// Mock data for operations
-const mockOperations = [
-  {
-    id: '1',
-    reference_number: 'REF-2025-002',
-    client_name: 'Industria XYZ Ltda.',
-    operation_type: 'muestreo',
-    location: 'Planta Industrial, Bogotá',
-    status: 'pending',
-    assigned_to: null,
-    created_at: '2025-09-22T17:09:20.840727+00:00',
-  },
-  {
-    id: '2',
-    reference_number: 'REF-2025-003',
-    client_name: 'Compañía 123 S.A.S.',
-    operation_type: 'muestreo',
-    location: 'Puerto de Cartagena',
-    status: 'pending',
-    assigned_to: null,
-    created_at: '2025-09-22T17:09:20.840727+00:00',
-  }
-];
 
 function getStatusBadge(status: string) {
   const statusConfig = {
@@ -56,6 +35,36 @@ function getStatusBadge(status: string) {
 }
 
 export default function OperationsPage() {
+  const { data: operations, isLoading } = useQuery({
+    queryKey: ['operations'],
+    queryFn: async () => {
+      const supabase = getSupabaseBrowserClient();
+      const { data, error } = await supabase
+        .from('operations')
+        .select(`
+          *,
+          service_references(
+            reference_number,
+            client_name,
+            location
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error(`Error fetching operations: ${error.message}`);
+      }
+
+      return data;
+    },
+  });
+
+  const stats = {
+    pending: operations?.filter(op => op.status === 'pending').length || 0,
+    in_progress: operations?.filter(op => op.status === 'in_progress').length || 0,
+    completed: operations?.filter(op => op.status === 'completed').length || 0,
+    efficiency: '95%'
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -74,7 +83,7 @@ export default function OperationsPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
+            <div className="text-2xl font-bold">{stats.pending}</div>
             <p className="text-xs text-muted-foreground">
               Esperando asignación
             </p>
@@ -87,7 +96,7 @@ export default function OperationsPage() {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{stats.in_progress}</div>
             <p className="text-xs text-muted-foreground">
               Técnicos trabajando
             </p>
@@ -100,7 +109,7 @@ export default function OperationsPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
+            <div className="text-2xl font-bold">{stats.completed}</div>
             <p className="text-xs text-muted-foreground">
               Muestreos finalizados
             </p>
@@ -112,7 +121,7 @@ export default function OperationsPage() {
             <CardTitle className="text-sm font-medium">Eficiencia</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">95%</div>
+            <div className="text-2xl font-bold">{stats.efficiency}</div>
             <p className="text-xs text-muted-foreground">
               Promedio semanal
             </p>
@@ -129,7 +138,11 @@ export default function OperationsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {mockOperations.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="text-sm text-muted-foreground">Cargando operaciones...</div>
+            </div>
+          ) : !operations || operations.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-sm font-medium">No hay operaciones pendientes</div>
               <div className="text-sm text-muted-foreground mt-1">
@@ -151,17 +164,17 @@ export default function OperationsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockOperations.map((operation) => (
+                  {operations?.map((operation) => (
                     <TableRow key={operation.id}>
                       <TableCell className="font-medium">
-                        {operation.reference_number}
+                        {operation.service_references?.reference_number}
                       </TableCell>
-                      <TableCell>{operation.client_name}</TableCell>
+                      <TableCell>{operation.service_references?.client_name}</TableCell>
                       <TableCell className="capitalize">
                         {operation.operation_type}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {operation.location}
+                        {operation.service_references?.location}
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(operation.status)}
@@ -175,7 +188,7 @@ export default function OperationsPage() {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ))
                 </TableBody>
               </Table>
             </div>

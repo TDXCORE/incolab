@@ -16,39 +16,6 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
 
-// Mock data while we implement the API
-const mockReferences = [
-  {
-    id: 'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86',
-    reference_number: 'REF-2025-001',
-    client_name: 'Empresa ABC S.A.',
-    service_type: 'both',
-    status: 'completed',
-    created_at: '2025-09-22T17:09:20.840727+00:00',
-    sample_description: 'Carbón bituminoso para análisis completo',
-    location: 'Mina El Cerrejón, La Guajira'
-  },
-  {
-    id: 'fc603d39-eece-4d77-986f-30163d78e349',
-    reference_number: 'REF-2025-002',
-    client_name: 'Industria XYZ Ltda.',
-    service_type: 'quality_analysis',
-    status: 'in_progress',
-    created_at: '2025-09-22T17:09:20.840727+00:00',
-    sample_description: 'Biomasa pelletizada',
-    location: 'Planta Industrial, Bogotá'
-  },
-  {
-    id: '86816cb9-443d-45d0-8aa4-7adb9c6d54ff',
-    reference_number: 'REF-2025-003',
-    client_name: 'Compañía 123 S.A.S.',
-    service_type: 'quantity_certification',
-    status: 'pending',
-    created_at: '2025-09-22T17:09:20.840727+00:00',
-    sample_description: 'Carbón térmico exportación',
-    location: 'Puerto de Cartagena'
-  }
-];
 
 function getStatusBadge(status: string) {
   const statusConfig = {

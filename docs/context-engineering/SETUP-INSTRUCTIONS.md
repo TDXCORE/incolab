@@ -5,6 +5,7 @@
 ### 1. 🌐 Verificar Sistema en Producción
 ```bash
 # URL del sistema: https://incolab.vercel.app
+# Base de datos: https://hvndtryxhrkvvlwjwpls.supabase.co
 # Estado: ✅ Desplegado y funcionando
 ```
 
@@ -14,7 +15,13 @@
 curl -X POST https://incolab.vercel.app/api/seed-demo
 ```
 
-**Opción B: Navegador**
+**Opción B: SQL Directo**
+```bash
+# Usando psql con service role key
+psql "postgresql://postgres.hvndtryxhrkvvlwjwpls:[SERVICE_ROLE_PASSWORD]@db.hvndtryxhrkvvlwjwpls.supabase.co:5432/postgres" -f supabase/seed.sql
+```
+
+**Opción C: Navegador**
 - Ir a: https://incolab.vercel.app/api/seed-demo
 - Método: POST (usar Postman o similar)
 

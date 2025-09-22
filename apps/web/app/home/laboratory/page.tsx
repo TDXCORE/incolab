@@ -10,28 +10,9 @@ import {
   TableRow,
 } from '@kit/ui/table';
 import { FlaskConical, Clock, CheckCircle, AlertTriangle, TestTube } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
 
-// Mock data for lab analysis
-const mockAnalysis = [
-  {
-    id: '1',
-    reference_number: 'REF-2025-002',
-    client_name: 'Industria XYZ Ltda.',
-    sample_description: 'Biomasa pelletizada',
-    status: 'waiting_sample',
-    analysis_type: ['humedad', 'cenizas'],
-    assigned_at: '2025-09-22T17:09:20.840727+00:00',
-  },
-  {
-    id: '2',
-    reference_number: 'REF-2025-003',
-    client_name: 'Compañía 123 S.A.S.',
-    sample_description: 'Carbón térmico exportación',
-    status: 'waiting_sample',
-    analysis_type: ['poder_calorifico', 'azufre'],
-    assigned_at: '2025-09-22T17:09:20.840727+00:00',
-  }
-];
 
 function getStatusBadge(status: string) {
   const statusConfig = {
@@ -54,6 +35,36 @@ function getStatusBadge(status: string) {
 }
 
 export default function LaboratoryPage() {
+  const { data: labAnalysis, isLoading } = useQuery({
+    queryKey: ['lab_analysis'],
+    queryFn: async () => {
+      const supabase = getSupabaseBrowserClient();
+      const { data, error } = await supabase
+        .from('lab_analysis')
+        .select(`
+          *,
+          service_references(
+            reference_number,
+            client_name,
+            sample_description
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw new Error(`Error fetching lab analysis: ${error.message}`);
+      }
+
+      return data;
+    },
+  });
+
+  const stats = {
+    waiting_sample: labAnalysis?.filter(lab => lab.status === 'waiting_sample').length || 0,
+    in_analysis: labAnalysis?.filter(lab => lab.status === 'in_analysis').length || 0,
+    completed: labAnalysis?.filter(lab => lab.status === 'completed').length || 0,
+    avg_time: '2.3h'
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -72,7 +83,7 @@ export default function LaboratoryPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
+            <div className="text-2xl font-bold">{stats.waiting_sample}</div>
             <p className="text-xs text-muted-foreground">
               Pendientes de operaciones
             </p>
@@ -85,7 +96,7 @@ export default function LaboratoryPage() {
             <FlaskConical className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{stats.in_analysis}</div>
             <p className="text-xs text-muted-foreground">
               Actualmente procesando
             </p>
@@ -98,7 +109,7 @@ export default function LaboratoryPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
+            <div className="text-2xl font-bold">{stats.completed}</div>
             <p className="text-xs text-muted-foreground">
               Análisis finalizados
             </p>
@@ -110,7 +121,7 @@ export default function LaboratoryPage() {
             <CardTitle className="text-sm font-medium">Tiempo Promedio</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2.3h</div>
+            <div className="text-2xl font-bold">{stats.avg_time}</div>
             <p className="text-xs text-muted-foreground">
               Por análisis completo
             </p>
@@ -153,7 +164,11 @@ export default function LaboratoryPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {mockAnalysis.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="text-sm text-muted-foreground">Cargando análisis...</div>
+            </div>
+          ) : !labAnalysis || labAnalysis.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-sm font-medium">No hay análisis pendientes</div>
               <div className="text-sm text-muted-foreground mt-1">
@@ -175,29 +190,35 @@ export default function LaboratoryPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockAnalysis.map((analysis) => (
+                  {labAnalysis?.map((analysis) => (
                     <TableRow key={analysis.id}>
                       <TableCell className="font-medium">
-                        {analysis.reference_number}
+                        {analysis.service_references?.reference_number}
                       </TableCell>
-                      <TableCell>{analysis.client_name}</TableCell>
+                      <TableCell>{analysis.service_references?.client_name}</TableCell>
                       <TableCell className="text-sm">
-                        {analysis.sample_description}
+                        {analysis.service_references?.sample_description}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {analysis.analysis_type.map((type) => (
-                            <Badge key={type} variant="outline" className="text-xs">
-                              {type}
+                          {analysis.analysis_type ? (
+                            analysis.analysis_type.map((type: string) => (
+                              <Badge key={type} variant="outline" className="text-xs">
+                                {type}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge variant="outline" className="text-xs">
+                              General
                             </Badge>
-                          ))}
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(analysis.status)}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {new Date(analysis.assigned_at).toLocaleDateString('es-ES')}
+                        {new Date(analysis.created_at).toLocaleDateString('es-ES')}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
@@ -207,12 +228,14 @@ export default function LaboratoryPage() {
                         >
                           {analysis.status === 'waiting_sample'
                             ? 'Esperando...'
+                            : analysis.status === 'completed'
+                            ? 'Ver Resultados'
                             : 'Procesar'
                           }
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ))
                 </TableBody>
               </Table>
             </div>
