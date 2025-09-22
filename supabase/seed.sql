@@ -2,8 +2,8 @@
 -- This creates realistic data for the Incolab system demo
 
 -- Clear existing demo data first
-DELETE FROM lab_analysis WHERE id LIKE 'lab%';
-DELETE FROM operations WHERE id LIKE 'op%';
+DELETE FROM lab_analysis WHERE id::text LIKE 'lab%';
+DELETE FROM operations WHERE id::text LIKE 'op%';
 DELETE FROM service_references WHERE reference_number LIKE 'REF-2025-%';
 
 -- Insert demo service references

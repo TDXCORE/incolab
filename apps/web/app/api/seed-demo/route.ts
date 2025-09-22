@@ -9,8 +9,24 @@ export async function POST() {
 
     // Clear existing demo data first
     console.log('🧹 Clearing existing demo data...');
-    await supabase.from('lab_analysis').delete().like('id', 'lab%');
-    await supabase.from('operations').delete().like('id', 'op%');
+
+    // Delete specific demo records by their known IDs
+    const demoLabIds = ['lab001', 'lab002', 'lab003', 'lab004', 'lab005', 'lab006'];
+    const demoOpIds = ['op001', 'op002', 'op003', 'op004', 'op005', 'op006'];
+    const demoRefIds = [
+      'ad4356bc-ee2a-4c1c-8b7a-32aabddd8c86',
+      'fc603d39-eece-4d77-986f-30163d78e349',
+      '86816cb9-443d-45d0-8aa4-7adb9c6d54ff',
+      'b7f23456-789a-4bcd-9e01-23456789abcd',
+      'c8e34567-890b-4cde-af02-3456789bcdef',
+      'd9f45678-901c-4def-b023-456789cdefab'
+    ];
+
+    await supabase.from('lab_analysis').delete().in('id', demoLabIds);
+    await supabase.from('operations').delete().in('id', demoOpIds);
+    await supabase.from('service_references').delete().in('id', demoRefIds);
+
+    // Also clear by reference number pattern
     await supabase.from('service_references').delete().like('reference_number', 'REF-2025-%');
 
     console.log('📝 Inserting service references...');
