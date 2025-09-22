@@ -11,10 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from '@kit/ui/table';
-import { Eye, Edit } from 'lucide-react';
+import { Eye, Edit, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { getSupabaseClient } from '@kit/supabase/client';
+import { getReferences } from '@kit/supabase/queries/references';
 
 // Mock data while we implement the API
 const mockReferences = [
@@ -76,14 +76,10 @@ function getServiceTypeBadge(serviceType: string) {
 }
 
 export function ReferencesTable() {
-  // TODO: Replace with real API call
   const { data: references, isLoading, error } = useQuery({
     queryKey: ['references'],
-    queryFn: async () => {
-      // For now, return mock data
-      // Later we'll implement: return getSupabaseClient().from('service_references').select('*')
-      return mockReferences;
-    },
+    queryFn: () => getReferences({ limit: 50 }),
+    refetchOnWindowFocus: false,
   });
 
   if (isLoading) {
@@ -167,6 +163,11 @@ export function ReferencesTable() {
                   <Button variant="ghost" size="sm" asChild>
                     <Link href={`/home/references/${reference.id}`}>
                       <Eye className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href={`/api/references/${reference.id}/certificate`} target="_blank">
+                      <FileText className="h-4 w-4" />
                     </Link>
                   </Button>
                   <Button variant="ghost" size="sm" asChild>

@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kit/
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { ReferencesTable } from './components/references-table';
+import { ReferencesStatsCards } from './components/references-stats-cards';
 
 export default function ReferencesPage() {
   return (
@@ -24,55 +25,7 @@ export default function ReferencesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Referencias</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">
-              Cargando...
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">En Proceso</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">
-              Cargando...
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completadas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">
-              Cargando...
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pendientes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">--</div>
-            <p className="text-xs text-muted-foreground">
-              Cargando...
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <ReferencesStatsCards />
 
       {/* References Table */}
       <Card>
