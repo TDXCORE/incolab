@@ -15,6 +15,7 @@ import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getOperations, assignOperationToUser, updateOperation } from '@kit/supabase/queries/operations';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 
 function getStatusBadge(status: string) {
@@ -39,6 +40,7 @@ function getStatusBadge(status: string) {
 
 export default function OperationsPage() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { data: operations, isLoading, error } = useQuery({
     queryKey: ['operations'],
@@ -90,6 +92,13 @@ export default function OperationsPage() {
       assignOperationMutation.mutate(operation.id);
     } else if (operation.status === 'in_progress') {
       completeOperationMutation.mutate(operation.id);
+    } else {
+      // For completed operations, navigate to the reference detail page
+      if (operation.service_references?.id) {
+        router.push(`/home/references/${operation.service_references.id}`);
+      } else {
+        toast.error('No se pudo encontrar la referencia asociada');
+      }
     }
   };
 

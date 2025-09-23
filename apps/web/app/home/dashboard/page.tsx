@@ -2,6 +2,8 @@ import { Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kit/ui/card';
 import { Badge } from '@kit/ui/badge';
 import { Skeleton } from '@kit/ui/skeleton';
+import { Button } from '@kit/ui/button';
+import Link from 'next/link';
 import {
   FileText,
   Truck,
@@ -16,6 +18,7 @@ import {
 import { getReferencesStats } from '@kit/supabase/queries/references';
 import { getOperationsStats } from '@kit/supabase/queries/operations';
 import { getLabAnalysisStats } from '@kit/supabase/queries/lab-analysis';
+import { getReferences } from '@kit/supabase/queries/references';
 
 interface DashboardStats {
   references: {
@@ -282,34 +285,34 @@ async function DashboardContent() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            <div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer">
+            <Link href="/home/references/create" className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer transition-colors">
               <FileText className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">Nueva Referencia</p>
                 <p className="text-xs text-muted-foreground">Crear servicio</p>
               </div>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer">
+            </Link>
+            <Link href="/home/operations" className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer transition-colors">
               <Truck className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">Ver Operaciones</p>
                 <p className="text-xs text-muted-foreground">Gestionar tareas</p>
               </div>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer">
+            </Link>
+            <Link href="/home/laboratory" className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer transition-colors">
               <FlaskConical className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">Laboratorio</p>
                 <p className="text-xs text-muted-foreground">Ver análisis</p>
               </div>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer">
+            </Link>
+            <Link href="/home/references" className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer transition-colors">
               <CheckCircle className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Generar Certificado</p>
-                <p className="text-xs text-muted-foreground">Completar servicio</p>
+                <p className="text-sm font-medium">Ver Referencias</p>
+                <p className="text-xs text-muted-foreground">Gestionar servicios</p>
               </div>
-            </div>
+            </Link>
           </div>
         </CardContent>
       </Card>

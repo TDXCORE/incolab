@@ -9,19 +9,13 @@ const iconClasses = 'w-4';
 
 const routes = [
   {
-    label: 'common:routes.application',
-    children: [
-      {
-        label: 'common:routes.home',
-        path: pathsConfig.app.home,
-        Icon: <Home className={iconClasses} />,
-        end: true,
-      },
-    ],
-  },
-  {
     label: 'Incolab',
     children: [
+      {
+        label: 'Dashboard',
+        path: '/home/dashboard',
+        Icon: <BarChart3 className={iconClasses} />,
+      },
       {
         label: 'Referencias',
         path: '/home/references',
@@ -36,11 +30,6 @@ const routes = [
         label: 'Laboratorio',
         path: '/home/laboratory',
         Icon: <FlaskConical className={iconClasses} />,
-      },
-      {
-        label: 'Dashboard',
-        path: '/home/dashboard',
-        Icon: <BarChart3 className={iconClasses} />,
       },
     ],
   },

@@ -191,12 +191,22 @@ export default function LaboratoryPage() {
               onClick={() => {
                 const waitingSample = labAnalysis?.find(lab => lab.status === 'waiting_sample');
                 if (waitingSample) {
-                  startAnalysisMutation.mutate(waitingSample.id);
+                  // Just register that sample was received - update sample_received_at
+                  updateLabAnalysis(waitingSample.id, {
+                    sample_received_at: new Date().toISOString(),
+                    sample_condition: 'Muestra recibida en buenas condiciones'
+                  }).then(() => {
+                    queryClient.invalidateQueries({ queryKey: ['lab_analysis'] });
+                    toast.success('Muestra registrada como recibida');
+                  }).catch((error) => {
+                    console.error('Error registering sample:', error);
+                    toast.error('Error al registrar muestra');
+                  });
                 } else {
                   toast.info('No hay muestras esperando procesamiento');
                 }
               }}
-              disabled={!labAnalysis?.some(lab => lab.status === 'waiting_sample') || startAnalysisMutation.isPending}
+              disabled={!labAnalysis?.some(lab => lab.status === 'waiting_sample')}
             >
               <TestTube className="mr-2 h-4 w-4" />
               Registrar Muestra Recibida
