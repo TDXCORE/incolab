@@ -12,8 +12,9 @@ import {
   TableRow,
 } from '@kit/ui/table';
 import { FlaskConical, Clock, CheckCircle, AlertTriangle, TestTube } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { getLabAnalysis } from '@kit/supabase/queries/lab-analysis';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getLabAnalysis, assignAnalysisToUser, updateLabAnalysis } from '@kit/supabase/queries/lab-analysis';
+import { toast } from 'sonner';
 
 
 function getStatusBadge(status: string) {
@@ -37,12 +38,72 @@ function getStatusBadge(status: string) {
 }
 
 export default function LaboratoryPage() {
+  const queryClient = useQueryClient();
+
   const { data: labAnalysis, isLoading, error } = useQuery({
     queryKey: ['lab_analysis'],
     queryFn: () => getLabAnalysis(),
     retry: 3,
     retryDelay: 1000,
   });
+
+  const startAnalysisMutation = useMutation({
+    mutationFn: async (analysisId: string) => {
+      return updateLabAnalysis(analysisId, {
+        status: 'in_analysis',
+        started_at: new Date().toISOString(),
+        sample_received_at: new Date().toISOString(),
+        sample_condition: 'Muestra recibida en buenas condiciones'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lab_analysis'] });
+      toast.success('Análisis iniciado exitosamente');
+    },
+    onError: (error) => {
+      console.error('Error starting analysis:', error);
+      toast.error('Error al iniciar análisis');
+    },
+  });
+
+  const completeAnalysisMutation = useMutation({
+    mutationFn: async (analysisId: string) => {
+      // Sample results for demo
+      const sampleResults = {
+        "Humedad": { "value": 12.5, "unit": "%", "method": "Gravimetría" },
+        "Cenizas": { "value": 8.2, "unit": "%", "method": "ASTM D3174" },
+        "Volátiles": { "value": 35.8, "unit": "%", "method": "ASTM D3175" },
+        "Carbono_fijo": { "value": 43.5, "unit": "%", "method": "Calculado" },
+        "Azufre": { "value": 0.75, "unit": "%", "method": "ASTM D4239" }
+      };
+
+      return updateLabAnalysis(analysisId, {
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        results: sampleResults,
+        qc_passed: true,
+        qc_notes: 'Análisis completado satisfactoriamente. Resultados dentro de parámetros.',
+        certified_by: 'demo-analyst-001',
+        certified_at: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lab_analysis'] });
+      toast.success('Análisis completado exitosamente');
+    },
+    onError: (error) => {
+      console.error('Error completing analysis:', error);
+      toast.error('Error al completar análisis');
+    },
+  });
+
+  const handleLabAction = (analysis: any) => {
+    if (analysis.status === 'waiting_sample') {
+      startAnalysisMutation.mutate(analysis.id);
+    } else if (analysis.status === 'in_analysis') {
+      completeAnalysisMutation.mutate(analysis.id);
+    }
+  };
 
   const stats = {
     waiting_sample: labAnalysis?.filter(lab => lab.status === 'waiting_sample').length || 0,
@@ -124,15 +185,51 @@ export default function LaboratoryPage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-3">
-            <Button variant="outline" className="justify-start">
+            <Button
+              variant="outline"
+              className="justify-start"
+              onClick={() => {
+                const waitingSample = labAnalysis?.find(lab => lab.status === 'waiting_sample');
+                if (waitingSample) {
+                  startAnalysisMutation.mutate(waitingSample.id);
+                } else {
+                  toast.info('No hay muestras esperando procesamiento');
+                }
+              }}
+              disabled={!labAnalysis?.some(lab => lab.status === 'waiting_sample') || startAnalysisMutation.isPending}
+            >
               <TestTube className="mr-2 h-4 w-4" />
               Registrar Muestra Recibida
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button
+              variant="outline"
+              className="justify-start"
+              onClick={() => {
+                const waitingSample = labAnalysis?.find(lab => lab.status === 'waiting_sample');
+                if (waitingSample) {
+                  startAnalysisMutation.mutate(waitingSample.id);
+                } else {
+                  toast.info('No hay muestras esperando análisis');
+                }
+              }}
+              disabled={!labAnalysis?.some(lab => lab.status === 'waiting_sample') || startAnalysisMutation.isPending}
+            >
               <FlaskConical className="mr-2 h-4 w-4" />
               Iniciar Análisis
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button
+              variant="outline"
+              className="justify-start"
+              onClick={() => {
+                const inAnalysis = labAnalysis?.find(lab => lab.status === 'in_analysis');
+                if (inAnalysis) {
+                  completeAnalysisMutation.mutate(inAnalysis.id);
+                } else {
+                  toast.info('No hay análisis en progreso para completar');
+                }
+              }}
+              disabled={!labAnalysis?.some(lab => lab.status === 'in_analysis') || completeAnalysisMutation.isPending}
+            >
               <CheckCircle className="mr-2 h-4 w-4" />
               Cargar Resultados
             </Button>
@@ -216,13 +313,14 @@ export default function LaboratoryPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          disabled={analysis.status === 'waiting_sample'}
+                          onClick={() => handleLabAction(analysis)}
+                          disabled={startAnalysisMutation.isPending || completeAnalysisMutation.isPending || analysis.status === 'completed'}
                         >
                           {analysis.status === 'waiting_sample'
-                            ? 'Esperando...'
+                            ? 'Iniciar Análisis'
                             : analysis.status === 'completed'
                             ? 'Ver Resultados'
-                            : 'Procesar'
+                            : 'Completar Análisis'
                           }
                         </Button>
                       </TableCell>

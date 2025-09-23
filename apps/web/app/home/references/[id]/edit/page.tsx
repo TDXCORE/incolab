@@ -26,7 +26,7 @@ import {
 } from '@kit/ui/select';
 import { toast } from 'sonner';
 import { Loader2, ArrowLeft } from 'lucide-react';
-import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
+import { getSupabaseAdminClient } from '@kit/supabase/browser-client';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 
@@ -55,7 +55,7 @@ export default function EditReferencePage() {
   const { data: reference, isLoading: isLoadingReference, error } = useQuery({
     queryKey: ['reference', referenceId],
     queryFn: async () => {
-      const supabase = getSupabaseBrowserClient();
+      const supabase = getSupabaseAdminClient();
       const { data, error } = await supabase
         .from('service_references')
         .select('*')
@@ -93,7 +93,7 @@ export default function EditReferencePage() {
     setIsLoading(true);
 
     try {
-      const supabase = getSupabaseBrowserClient();
+      const supabase = getSupabaseAdminClient();
 
       const { data: updatedReference, error } = await supabase
         .from('service_references')

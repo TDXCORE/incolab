@@ -12,8 +12,9 @@ import {
   TableRow,
 } from '@kit/ui/table';
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { getOperations } from '@kit/supabase/queries/operations';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getOperations, assignOperationToUser, updateOperation } from '@kit/supabase/queries/operations';
+import { toast } from 'sonner';
 
 
 function getStatusBadge(status: string) {
@@ -37,12 +38,60 @@ function getStatusBadge(status: string) {
 }
 
 export default function OperationsPage() {
+  const queryClient = useQueryClient();
+
   const { data: operations, isLoading, error } = useQuery({
     queryKey: ['operations'],
     queryFn: () => getOperations(),
     retry: 3,
     retryDelay: 1000,
   });
+
+  const assignOperationMutation = useMutation({
+    mutationFn: async (operationId: string) => {
+      // Update operation to in_progress without user assignment for demo
+      return updateOperation(operationId, {
+        status: 'in_progress',
+        assigned_at: new Date().toISOString(),
+        started_at: new Date().toISOString(),
+        notes: 'Operación asignada desde el panel de control'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['operations'] });
+      toast.success('Operación asignada exitosamente');
+    },
+    onError: (error) => {
+      console.error('Error assigning operation:', error);
+      toast.error('Error al asignar operación');
+    },
+  });
+
+  const completeOperationMutation = useMutation({
+    mutationFn: async (operationId: string) => {
+      return updateOperation(operationId, {
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        notes: 'Operación completada desde el panel de control'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['operations'] });
+      toast.success('Operación completada exitosamente');
+    },
+    onError: (error) => {
+      console.error('Error completing operation:', error);
+      toast.error('Error al completar operación');
+    },
+  });
+
+  const handleOperationAction = (operation: any) => {
+    if (operation.status === 'pending') {
+      assignOperationMutation.mutate(operation.id);
+    } else if (operation.status === 'in_progress') {
+      completeOperationMutation.mutate(operation.id);
+    }
+  };
 
   const stats = {
     pending: operations?.filter(op => op.status === 'pending').length || 0,
@@ -175,8 +224,14 @@ export default function OperationsPage() {
                         {new Date(operation.created_at).toLocaleDateString('es-ES')}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm">
-                          {operation.status === 'pending' ? 'Asignar a mí' : 'Ver Detalles'}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOperationAction(operation)}
+                          disabled={assignOperationMutation.isPending || completeOperationMutation.isPending}
+                        >
+                          {operation.status === 'pending' ? 'Asignar a mí' :
+                           operation.status === 'in_progress' ? 'Completar' : 'Ver Detalles'}
                         </Button>
                       </TableCell>
                     </TableRow>

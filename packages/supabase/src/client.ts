@@ -9,4 +9,4 @@ export function getSupabaseClient() {
 }
 
 // Re-export for convenience
-export { getSupabaseBrowserClient } from './clients/browser-client';
+export { getSupabaseBrowserClient, getSupabaseAdminClient } from './clients/browser-client';

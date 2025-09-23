@@ -93,7 +93,14 @@ export function CreateReferenceForm() {
       router.push('/home/references');
     } catch (error) {
       console.error('Error creating reference:', error);
-      toast.error('Error al crear la referencia. Por favor, intenta de nuevo.');
+
+      // Show detailed error message
+      let errorMessage = 'Error al crear la referencia. Por favor, intenta de nuevo.';
+      if (error instanceof Error) {
+        errorMessage = `Error: ${error.message}`;
+      }
+
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

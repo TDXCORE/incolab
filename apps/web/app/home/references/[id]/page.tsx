@@ -8,7 +8,7 @@ import { ArrowLeft, Calendar, FileText, MapPin, User, Briefcase } from 'lucide-r
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
+import { getSupabaseAdminClient } from '@kit/supabase/browser-client';
 
 function getStatusBadge(status: string) {
   const statusConfig = {
@@ -42,7 +42,7 @@ export default function ReferenceDetailPage() {
   const { data: reference, isLoading, error } = useQuery({
     queryKey: ['reference', referenceId],
     queryFn: async () => {
-      const supabase = getSupabaseBrowserClient();
+      const supabase = getSupabaseAdminClient();
       const { data, error } = await supabase
         .from('service_references')
         .select(`
