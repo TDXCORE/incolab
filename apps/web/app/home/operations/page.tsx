@@ -13,7 +13,7 @@ import {
 } from '@kit/ui/table';
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
+import { getOperations } from '@kit/supabase/queries/operations';
 
 
 function getStatusBadge(status: string) {
@@ -39,33 +39,7 @@ function getStatusBadge(status: string) {
 export default function OperationsPage() {
   const { data: operations, isLoading, error } = useQuery({
     queryKey: ['operations'],
-    queryFn: async () => {
-      const supabase = getSupabaseBrowserClient();
-
-      try {
-        const { data, error } = await supabase
-          .from('operations')
-          .select(`
-            *,
-            service_references!inner(
-              reference_number,
-              client_name,
-              location
-            )
-          `)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('Supabase error:', error);
-          throw error;
-        }
-
-        return data || [];
-      } catch (err) {
-        console.error('Query error:', err);
-        throw err;
-      }
-    },
+    queryFn: () => getOperations(),
     retry: 3,
     retryDelay: 1000,
   });

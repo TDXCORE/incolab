@@ -1,4 +1,4 @@
-import { getSupabaseBrowserClient } from '../clients/browser-client';
+import { getSupabaseAdminClient } from '../clients/browser-client';
 import type { Operation, OperationInsert, OperationUpdate } from '../types/database';
 
 /**
@@ -10,7 +10,7 @@ export async function getOperations(options?: {
   limit?: number;
   offset?: number;
 }) {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   let query = supabase
     .from('operations')
@@ -61,7 +61,7 @@ export async function getMyOperations(userId: string) {
  * Get pending operations (not assigned to anyone)
  */
 export async function getPendingOperations() {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   const { data, error } = await supabase
     .from('operations')
@@ -89,7 +89,7 @@ export async function getPendingOperations() {
  * Assign an operation to a user
  */
 export async function assignOperationToUser(operationId: string, userId: string) {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   const { data, error } = await supabase
     .from('operations')
@@ -113,7 +113,7 @@ export async function assignOperationToUser(operationId: string, userId: string)
  * Update operation status and details
  */
 export async function updateOperation(id: string, updates: OperationUpdate) {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   // If completing the operation, set completion timestamp
   if (updates.status === 'completed' && !updates.completed_at) {
@@ -143,7 +143,7 @@ export async function updateOperation(id: string, updates: OperationUpdate) {
  * Get operations statistics for dashboard
  */
 export async function getOperationsStats() {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   // Get total count
   const { count: total, error: totalError } = await supabase

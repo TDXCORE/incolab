@@ -13,7 +13,7 @@ import {
 } from '@kit/ui/table';
 import { FlaskConical, Clock, CheckCircle, AlertTriangle, TestTube } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
+import { getLabAnalysis } from '@kit/supabase/queries/lab-analysis';
 
 
 function getStatusBadge(status: string) {
@@ -39,33 +39,7 @@ function getStatusBadge(status: string) {
 export default function LaboratoryPage() {
   const { data: labAnalysis, isLoading, error } = useQuery({
     queryKey: ['lab_analysis'],
-    queryFn: async () => {
-      const supabase = getSupabaseBrowserClient();
-
-      try {
-        const { data, error } = await supabase
-          .from('lab_analysis')
-          .select(`
-            *,
-            service_references!inner(
-              reference_number,
-              client_name,
-              sample_description
-            )
-          `)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('Supabase error:', error);
-          throw error;
-        }
-
-        return data || [];
-      } catch (err) {
-        console.error('Query error:', err);
-        throw err;
-      }
-    },
+    queryFn: () => getLabAnalysis(),
     retry: 3,
     retryDelay: 1000,
   });

@@ -26,7 +26,7 @@ import {
 } from '@kit/ui/select';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { getSupabaseBrowserClient } from '@kit/supabase/browser-client';
+import { getSupabaseAdminClient } from '@kit/supabase/browser-client';
 
 // Schema de validación para el formulario
 const createReferenceSchema = z.object({
@@ -59,7 +59,7 @@ export function CreateReferenceForm() {
     setIsLoading(true);
 
     try {
-      const supabase = getSupabaseBrowserClient();
+      const supabase = getSupabaseAdminClient();
 
       // Generate reference number using the database function
       const { data: refNumber, error: refError } = await supabase

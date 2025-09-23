@@ -1,4 +1,4 @@
-import { getSupabaseBrowserClient } from '../clients/browser-client';
+import { getSupabaseAdminClient } from '../clients/browser-client';
 import type { ServiceReference, ServiceReferenceInsert, ServiceReferenceUpdate } from '../types/database';
 
 /**
@@ -9,7 +9,7 @@ export async function getReferences(options?: {
   limit?: number;
   offset?: number;
 }) {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   let query = supabase
     .from('service_references')
@@ -41,7 +41,7 @@ export async function getReferences(options?: {
  * Get a single service reference by ID with related data
  */
 export async function getReferenceById(id: string) {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   const { data, error } = await supabase
     .from('service_references')
@@ -65,7 +65,7 @@ export async function getReferenceById(id: string) {
  * This will automatically trigger the creation of operations and lab_analysis entries
  */
 export async function createReference(data: Omit<ServiceReferenceInsert, 'reference_number'>) {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   // Generate reference number using the database function
   const { data: refNumber, error: refError } = await supabase
@@ -96,7 +96,7 @@ export async function createReference(data: Omit<ServiceReferenceInsert, 'refere
  * Update a service reference
  */
 export async function updateReference(id: string, updates: ServiceReferenceUpdate) {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   const { data, error } = await supabase
     .from('service_references')
@@ -116,7 +116,7 @@ export async function updateReference(id: string, updates: ServiceReferenceUpdat
  * Delete a service reference
  */
 export async function deleteReference(id: string) {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   const { error } = await supabase
     .from('service_references')
@@ -134,7 +134,7 @@ export async function deleteReference(id: string) {
  * Get references statistics for dashboard
  */
 export async function getReferencesStats() {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = getSupabaseAdminClient();
 
   // Get total count
   const { count: total, error: totalError } = await supabase

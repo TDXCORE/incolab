@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@kit/ui/card';
 import { Badge } from '@kit/ui/badge';
+import { Skeleton } from '@kit/ui/skeleton';
 import {
   FileText,
   Truck,
@@ -11,50 +13,96 @@ import {
   Users,
 } from 'lucide-react';
 
-// Mock data for dashboard metrics
-const dashboardData = {
-  overview: {
-    totalReferences: 3,
-    inProgress: 1,
-    completed: 1,
-    pending: 1,
-  },
-  operations: {
-    pendingTasks: 2,
-    inField: 0,
-    completedToday: 1,
-  },
-  laboratory: {
-    waitingSample: 2,
-    inAnalysis: 0,
-    completedToday: 1,
-  },
-  recentActivity: [
-    {
-      id: '1',
-      type: 'reference_created',
-      description: 'Nueva referencia REF-2025-003 creada para Compañía 123 S.A.S.',
-      time: '2 horas',
-      icon: FileText,
-    },
-    {
-      id: '2',
-      type: 'operation_completed',
-      description: 'Muestreo completado para REF-2025-001 en Mina El Cerrejón',
-      time: '4 horas',
-      icon: Truck,
-    },
-    {
-      id: '3',
-      type: 'analysis_completed',
-      description: 'Análisis de calidad completado para REF-2025-001',
-      time: '6 horas',
-      icon: FlaskConical,
-    },
-  ],
-};
+import { getReferencesStats } from '@kit/supabase/queries/references';
+import { getOperationsStats } from '@kit/supabase/queries/operations';
+import { getLabAnalysisStats } from '@kit/supabase/queries/lab-analysis';
 
-export default function DashboardPage() {
+interface DashboardStats {
+  references: {
+    total: number;
+    pending: number;
+    in_progress: number;
+    completed: number;
+    cancelled: number;
+    on_hold: number;
+  };
+  operations: {
+    total: number;
+    pending: number;
+    in_progress: number;
+    completed: number;
+    failed: number;
+    rescheduled: number;
+    completedToday: number;
+  };
+  laboratory: {
+    total: number;
+    waiting_sample: number;
+    in_analysis: number;
+    completed: number;
+    failed: number;
+    requires_retest: number;
+    completedToday: number;
+  };
+}
+
+async function getDashboardStats(): Promise<DashboardStats> {
+  try {
+    const [referencesStats, operationsStats, labStats] = await Promise.all([
+      getReferencesStats(),
+      getOperationsStats(),
+      getLabAnalysisStats(),
+    ]);
+
+    return {
+      references: referencesStats,
+      operations: operationsStats,
+      laboratory: labStats,
+    };
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    // Return default values if there's an error
+    return {
+      references: { total: 0, pending: 0, in_progress: 0, completed: 0, cancelled: 0, on_hold: 0 },
+      operations: { total: 0, pending: 0, in_progress: 0, completed: 0, failed: 0, rescheduled: 0, completedToday: 0 },
+      laboratory: { total: 0, waiting_sample: 0, in_analysis: 0, completed: 0, failed: 0, requires_retest: 0, completedToday: 0 },
+    };
+  }
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-4 w-96 mt-2" />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-16" />
+              <Skeleton className="h-3 w-32 mt-2" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function DashboardContent() {
+  const stats = await getDashboardStats();
+
+  // Calculate efficiency percentage
+  const efficiency = stats.references.total > 0
+    ? Math.round((stats.references.completed / stats.references.total) * 100)
+    : 0;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -73,7 +121,7 @@ export default function DashboardPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.overview.totalReferences}</div>
+            <div className="text-2xl font-bold">{stats.references.total}</div>
             <p className="text-xs text-muted-foreground">
               Registradas en el sistema
             </p>
@@ -86,7 +134,7 @@ export default function DashboardPage() {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.overview.inProgress}</div>
+            <div className="text-2xl font-bold">{stats.references.in_progress}</div>
             <p className="text-xs text-muted-foreground">
               Operaciones activas
             </p>
@@ -99,7 +147,7 @@ export default function DashboardPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.overview.completed}</div>
+            <div className="text-2xl font-bold">{stats.references.completed}</div>
             <p className="text-xs text-muted-foreground">
               Certificados listos
             </p>
@@ -112,9 +160,9 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">95%</div>
+            <div className="text-2xl font-bold">{efficiency}%</div>
             <p className="text-xs text-muted-foreground">
-              Promedio mensual
+              Referencias completadas
             </p>
           </CardContent>
         </Card>
@@ -134,15 +182,15 @@ export default function DashboardPage() {
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Pendientes</span>
-              <Badge variant="outline">{dashboardData.operations.pendingTasks}</Badge>
+              <Badge variant="outline">{stats.operations.pending}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">En Campo</span>
-              <Badge variant="default">{dashboardData.operations.inField}</Badge>
+              <Badge variant="default">{stats.operations.in_progress}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Completadas Hoy</span>
-              <Badge variant="secondary">{dashboardData.operations.completedToday}</Badge>
+              <Badge variant="secondary">{stats.operations.completedToday}</Badge>
             </div>
           </CardContent>
         </Card>
@@ -159,15 +207,15 @@ export default function DashboardPage() {
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Esperando Muestra</span>
-              <Badge variant="outline">{dashboardData.laboratory.waitingSample}</Badge>
+              <Badge variant="outline">{stats.laboratory.waiting_sample}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">En Análisis</span>
-              <Badge variant="default">{dashboardData.laboratory.inAnalysis}</Badge>
+              <Badge variant="default">{stats.laboratory.in_analysis}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Completados Hoy</span>
-              <Badge variant="secondary">{dashboardData.laboratory.completedToday}</Badge>
+              <Badge variant="secondary">{stats.laboratory.completedToday}</Badge>
             </div>
           </CardContent>
         </Card>
@@ -183,45 +231,43 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Tiempo Promedio</span>
-              <Badge variant="outline">2.5 días</Badge>
+              <span className="text-sm text-muted-foreground">Referencias Activas</span>
+              <Badge variant="outline">{stats.references.in_progress + stats.references.pending}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Servicios Completos</span>
-              <Badge variant="secondary">33%</Badge>
+              <Badge variant="secondary">{efficiency}%</Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Satisfacción</span>
-              <Badge variant="default">4.8/5</Badge>
+              <span className="text-sm text-muted-foreground">En Espera</span>
+              <Badge variant="outline">{stats.references.on_hold}</Badge>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Activity */}
+      {/* System Status Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Actividad Reciente</CardTitle>
+          <CardTitle>Estado del Sistema</CardTitle>
           <CardDescription>
-            Últimas actividades en el sistema
+            Resumen general de todas las operaciones activas
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {dashboardData.recentActivity.map((activity) => {
-              const Icon = activity.icon;
-              return (
-                <div key={activity.id} className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">{activity.description}</p>
-                    <p className="text-xs text-muted-foreground">Hace {activity.time}</p>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="text-center p-4 border rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{stats.references.total}</div>
+              <div className="text-sm text-muted-foreground">Referencias Totales</div>
+            </div>
+            <div className="text-center p-4 border rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">{stats.operations.total}</div>
+              <div className="text-sm text-muted-foreground">Operaciones Totales</div>
+            </div>
+            <div className="text-center p-4 border rounded-lg">
+              <div className="text-2xl font-bold text-green-600">{stats.laboratory.total}</div>
+              <div className="text-sm text-muted-foreground">Análisis Totales</div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -246,15 +292,15 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer">
               <Truck className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Asignar Operación</p>
-                <p className="text-xs text-muted-foreground">A técnico</p>
+                <p className="text-sm font-medium">Ver Operaciones</p>
+                <p className="text-xs text-muted-foreground">Gestionar tareas</p>
               </div>
             </div>
             <div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer">
               <FlaskConical className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Procesar Muestra</p>
-                <p className="text-xs text-muted-foreground">En laboratorio</p>
+                <p className="text-sm font-medium">Laboratorio</p>
+                <p className="text-xs text-muted-foreground">Ver análisis</p>
               </div>
             </div>
             <div className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer">
@@ -268,5 +314,13 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   );
 }
