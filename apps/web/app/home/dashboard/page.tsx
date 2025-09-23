@@ -107,17 +107,17 @@ async function DashboardContent() {
     : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard Incolab</h1>
-        <p className="text-muted-foreground">
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard Incolab</h1>
+        <p className="text-muted-foreground text-sm md:text-base">
           Vista general del estado de referencias y operaciones
         </p>
       </div>
 
       {/* Overview Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Referencias</CardTitle>
@@ -172,7 +172,7 @@ async function DashboardContent() {
       </div>
 
       {/* Area Status Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Operations Status */}
         <Card>
           <CardHeader>
@@ -258,18 +258,18 @@ async function DashboardContent() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             <div className="text-center p-4 border rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{stats.references.total}</div>
-              <div className="text-sm text-muted-foreground">Referencias Totales</div>
+              <div className="text-xl md:text-2xl font-bold text-blue-600">{stats.references.total}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Referencias Totales</div>
             </div>
             <div className="text-center p-4 border rounded-lg">
-              <div className="text-2xl font-bold text-orange-600">{stats.operations.total}</div>
-              <div className="text-sm text-muted-foreground">Operaciones Totales</div>
+              <div className="text-xl md:text-2xl font-bold text-orange-600">{stats.operations.total}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Operaciones Totales</div>
             </div>
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{stats.laboratory.total}</div>
-              <div className="text-sm text-muted-foreground">Análisis Totales</div>
+            <div className="text-center p-4 border rounded-lg sm:col-span-2 md:col-span-1">
+              <div className="text-xl md:text-2xl font-bold text-green-600">{stats.laboratory.total}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Análisis Totales</div>
             </div>
           </div>
         </CardContent>
@@ -284,7 +284,7 @@ async function DashboardContent() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Link href="/home/references/create" className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 cursor-pointer transition-colors">
               <FileText className="h-5 w-5 text-muted-foreground" />
               <div>

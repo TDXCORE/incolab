@@ -86,27 +86,32 @@ export default function ReferenceDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
           <Button variant="ghost" size="sm" asChild>
             <Link href="/home/references">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Volver
             </Link>
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+          <div className="space-y-2">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
               {reference.reference_number}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm md:text-base">
               Detalles de la referencia de servicio
             </p>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button asChild>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full lg:w-auto">
+          <Button asChild className="w-full sm:w-auto">
+            <Link href={`/home/references/${reference.id}/edit`}>
+              Editar Referencia
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="w-full sm:w-auto">
             <Link href={`/api/references/${reference.id}/certificate`} target="_blank">
               <FileText className="h-4 w-4 mr-2" />
               Generar Certificado

@@ -35,12 +35,20 @@ function PersonalAccountSettingsPage() {
 
   return (
     <PageBody>
-      <div className={'flex w-full flex-1 flex-col lg:max-w-2xl'}>
-        <PersonalAccountSettingsContainer
-          userId={userId}
-          paths={paths}
-          features={features}
-        />
+      <div className={'flex w-full flex-1 flex-col p-4 md:p-6'}>
+        <div className="space-y-2 mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Configuración de Perfil</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            Gestiona tu información personal y configuración de cuenta
+          </p>
+        </div>
+        <div className={'w-full max-w-4xl mx-auto'}>
+          <PersonalAccountSettingsContainer
+            userId={userId}
+            paths={paths}
+            features={features}
+          />
+        </div>
       </div>
     </PageBody>
   );

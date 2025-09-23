@@ -112,17 +112,17 @@ export default function LaboratoryPage() {
     avg_time: '2.3h'
   };
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Laboratorio</h1>
-        <p className="text-muted-foreground">
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Laboratorio</h1>
+        <p className="text-muted-foreground text-sm md:text-base">
           Gestiona los análisis de laboratorio y resultados
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Esperando Muestra</CardTitle>
@@ -184,7 +184,7 @@ export default function LaboratoryPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-3">
             <Button
               variant="outline"
               className="justify-start"
@@ -275,16 +275,17 @@ export default function LaboratoryPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
+            <div className="rounded-md border overflow-hidden">
+              <div className="overflow-x-auto">
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Referencia</TableHead>
                     <TableHead>Cliente</TableHead>
-                    <TableHead>Muestra</TableHead>
-                    <TableHead>Análisis</TableHead>
+                    <TableHead className="hidden md:table-cell">Muestra</TableHead>
+                    <TableHead className="hidden lg:table-cell">Análisis</TableHead>
                     <TableHead>Estado</TableHead>
-                    <TableHead>Fecha</TableHead>
+                    <TableHead className="hidden sm:table-cell">Fecha</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -295,10 +296,10 @@ export default function LaboratoryPage() {
                         {analysis.service_references?.reference_number}
                       </TableCell>
                       <TableCell>{analysis.service_references?.client_name}</TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="hidden md:table-cell text-sm">
                         {analysis.service_references?.sample_description}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden lg:table-cell">
                         <div className="flex flex-wrap gap-1">
                           {analysis.analysis_type ? (
                             analysis.analysis_type.map((type: string) => (
@@ -316,7 +317,7 @@ export default function LaboratoryPage() {
                       <TableCell>
                         {getStatusBadge(analysis.status)}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
                         {new Date(analysis.created_at).toLocaleDateString('es-ES')}
                       </TableCell>
                       <TableCell className="text-right">
@@ -337,7 +338,8 @@ export default function LaboratoryPage() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
+                </Table>
+              </div>
             </div>
           )}
         </CardContent>

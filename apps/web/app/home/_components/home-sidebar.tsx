@@ -21,11 +21,8 @@ export function HomeSidebar(props: {
   return (
     <Sidebar collapsible={'icon'}>
       <SidebarHeader className={'h-16 justify-center'}>
-        <div className={'flex items-center justify-between space-x-2'}>
-          <div>
-            <AppLogo className={'max-w-full'} />
-          </div>
-          <SidebarTrigger className={'ml-auto'} />
+        <div className={'flex items-center justify-center'}>
+          <AppLogo className={'max-w-full'} />
         </div>
       </SidebarHeader>
 
@@ -34,10 +31,19 @@ export function HomeSidebar(props: {
       </SidebarContent>
 
       <SidebarFooter>
-        <ProfileAccountDropdownContainer
-          user={props.user}
-          account={props.account}
-        />
+        <div className={'flex flex-col space-y-2'}>
+          <ProfileAccountDropdownContainer
+            user={props.user}
+            account={props.account}
+          />
+          <div className={'flex justify-center px-2'}>
+            <SidebarTrigger
+              size={'sm'}
+              variant={'ghost'}
+              className={'h-8 w-8'}
+            />
+          </div>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

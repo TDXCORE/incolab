@@ -109,17 +109,17 @@ export default function OperationsPage() {
     efficiency: '95%'
   };
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Operaciones</h1>
-        <p className="text-muted-foreground">
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Operaciones</h1>
+        <p className="text-muted-foreground text-sm md:text-base">
           Gestiona las tareas de campo y muestreos asignados
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tareas Pendientes</CardTitle>
@@ -200,16 +200,17 @@ export default function OperationsPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
+            <div className="rounded-md border overflow-hidden">
+              <div className="overflow-x-auto">
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Referencia</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Tipo</TableHead>
-                    <TableHead>Ubicación</TableHead>
+                    <TableHead className="hidden md:table-cell">Ubicación</TableHead>
                     <TableHead>Estado</TableHead>
-                    <TableHead>Fecha</TableHead>
+                    <TableHead className="hidden sm:table-cell">Fecha</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -223,13 +224,13 @@ export default function OperationsPage() {
                       <TableCell className="capitalize">
                         {operation.operation_type}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
                         {operation.service_references?.location}
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(operation.status)}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
                         {new Date(operation.created_at).toLocaleDateString('es-ES')}
                       </TableCell>
                       <TableCell className="text-right">
@@ -246,7 +247,8 @@ export default function OperationsPage() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
+                </Table>
+              </div>
             </div>
           )}
         </CardContent>

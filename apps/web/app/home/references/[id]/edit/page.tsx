@@ -151,20 +151,20 @@ export default function EditReferencePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       {/* Header */}
-      <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
         <Button variant="ghost" size="sm" asChild>
           <Link href={`/home/references/${referenceId}`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver
           </Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+        <div className="space-y-2">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
             Editar Referencia {reference.reference_number}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm md:text-base">
             Modifica los detalles de la referencia de servicio
           </p>
         </div>
@@ -357,7 +357,7 @@ export default function EditReferencePage() {
           </div>
 
           {/* Botones */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Button
               type="submit"
               disabled={isLoading}
@@ -372,6 +372,7 @@ export default function EditReferencePage() {
               variant="outline"
               onClick={() => router.back()}
               disabled={isLoading}
+              className="sm:w-auto"
             >
               Cancelar
             </Button>
