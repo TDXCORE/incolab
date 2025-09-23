@@ -12,7 +12,8 @@
       "Bash(git commit:*)",
       "Bash(npm run build:*)",
       "Bash(find:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []

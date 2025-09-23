@@ -6,6 +6,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarNavigation,
+  SidebarTrigger,
 } from '@kit/ui/shadcn-sidebar';
 
 import { AppLogo } from '~/components/app-logo';
@@ -24,6 +25,7 @@ export function HomeSidebar(props: {
           <div>
             <AppLogo className={'max-w-full'} />
           </div>
+          <SidebarTrigger className={'ml-auto'} />
         </div>
       </SidebarHeader>
 

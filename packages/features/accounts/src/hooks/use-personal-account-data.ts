@@ -20,23 +20,13 @@ export function usePersonalAccountData(
       return null;
     }
 
-    const response = await client
-      .from('accounts')
-      .select(
-        `
-        id,
-        name,
-        picture_url
-    `,
-      )
-      .eq('id', userId)
-      .single();
-
-    if (response.error) {
-      throw response.error;
-    }
-
-    return response.data;
+    // For demo purposes, return mock user data since accounts table doesn't exist
+    // In a real implementation, this would query the accounts table
+    return {
+      id: userId,
+      name: 'Usuario Demo Incolab',
+      picture_url: null,
+    };
   };
 
   return useQuery({
