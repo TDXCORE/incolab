@@ -7,12 +7,27 @@ import {
   SidebarHeader,
   SidebarNavigation,
   SidebarTrigger,
+  useSidebar,
 } from '@kit/ui/shadcn-sidebar';
 
 import { AppLogo } from '~/components/app-logo';
 import { ProfileAccountDropdownContainer } from '~/components/personal-account-dropdown-container';
 import { navigationConfig } from '~/config/navigation.config';
 import { Tables } from '~/lib/database.types';
+
+function SidebarLogo() {
+  const { open } = useSidebar();
+
+  return (
+    <div className={'flex items-center justify-center'}>
+      {open ? (
+        <AppLogo className={'max-w-full'} />
+      ) : (
+        <span className="text-lg font-bold text-primary dark:text-white">I</span>
+      )}
+    </div>
+  );
+}
 
 export function HomeSidebar(props: {
   account?: Tables<'accounts'>;
@@ -21,9 +36,7 @@ export function HomeSidebar(props: {
   return (
     <Sidebar collapsible={'icon'}>
       <SidebarHeader className={'h-16 justify-center'}>
-        <div className={'flex items-center justify-center'}>
-          <AppLogo className={'max-w-full'} />
-        </div>
+        <SidebarLogo />
       </SidebarHeader>
 
       <SidebarContent>
@@ -38,9 +51,8 @@ export function HomeSidebar(props: {
           />
           <div className={'flex justify-center px-2'}>
             <SidebarTrigger
-              size={'sm'}
               variant={'ghost'}
-              className={'h-8 w-8'}
+              className={'h-9 w-9 [&>svg]:h-4 [&>svg]:w-4'}
             />
           </div>
         </div>
