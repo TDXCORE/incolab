@@ -219,13 +219,16 @@ export async function updateAnalysisResults(
     results,
     qc_passed: options?.qcPassed,
     qc_notes: options?.qcNotes,
-    certified_by: options?.certifiedBy,
   };
 
-  // If marking as certified, set timestamp
+  // If marking as certified, set timestamp (but don't set certified_by if it's not a valid UUID)
   if (options?.certifiedBy) {
     updates.certified_at = new Date().toISOString();
     updates.status = 'completed';
+    // Only set certified_by if it looks like a valid UUID
+    if (options.certifiedBy.length === 36 && options.certifiedBy.includes('-')) {
+      updates.certified_by = options.certifiedBy;
+    }
   }
 
   return updateLabAnalysis(id, updates);

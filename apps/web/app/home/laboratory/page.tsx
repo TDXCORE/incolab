@@ -166,8 +166,7 @@ export default function LaboratoryPage() {
         completed_at: new Date().toISOString(),
         results: sampleResults,
         qc_passed: true,
-        qc_notes: 'Análisis completado satisfactoriamente. Resultados dentro de parámetros.',
-        certified_by: 'demo-analyst-001',
+        qc_notes: 'Análisis completado satisfactoriamente. Resultados dentro de parámetros por analista demo.',
         certified_at: new Date().toISOString()
       });
     },

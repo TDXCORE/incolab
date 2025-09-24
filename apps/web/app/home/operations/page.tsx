@@ -76,21 +76,22 @@ function SamplingDataModal({ operation, onComplete }: { operation: any, onComple
       return;
     }
 
+    const samplingDetails = {
+      scenario: formData.scenario,
+      placa_vehiculo: formData.placa_vehiculo,
+      manifiesto_numero: formData.manifiesto_numero,
+      temperatura_muestra: formData.temperatura_muestra,
+      condiciones_muestra: formData.condiciones_muestra,
+      observaciones: formData.observaciones,
+      fecha_muestreo: new Date().toISOString()
+    };
+
     onComplete({
       status: 'completed',
       completed_at: new Date().toISOString(),
       sample_quantity: parseFloat(formData.cantidad_muestra),
       sample_units: formData.unidades_muestra,
-      sampling_data: {
-        scenario: formData.scenario,
-        placa_vehiculo: formData.placa_vehiculo,
-        manifiesto_numero: formData.manifiesto_numero,
-        temperatura_muestra: formData.temperatura_muestra,
-        condiciones_muestra: formData.condiciones_muestra,
-        observaciones: formData.observaciones,
-        fecha_muestreo: new Date().toISOString()
-      },
-      notes: `Operación completada - Escenario: ${formData.scenario}, Cantidad: ${formData.cantidad_muestra} ${formData.unidades_muestra}`
+      notes: `Operación completada - Escenario: ${formData.scenario}, Cantidad: ${formData.cantidad_muestra} ${formData.unidades_muestra}. Detalles: ${JSON.stringify(samplingDetails)}`
     });
 
     setOpen(false);
