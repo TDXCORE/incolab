@@ -321,39 +321,131 @@ export default function ReferenceDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle>Cronología</CardTitle>
+              <CardDescription>
+                Historial completo de eventos
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div className="text-sm">
-                  <div className="font-medium">Referencia Creada</div>
-                  <div className="text-muted-foreground">
-                    {new Date(reference.created_at).toLocaleString('es-ES')}
-                  </div>
-                </div>
-              </div>
+            <CardContent className="space-y-4">
+              {(() => {
+                const events = [];
 
-              {reference.operations?.some((op: any) => op.started_at) && (
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="text-sm">
-                    <div className="font-medium">Operación Iniciada</div>
-                    <div className="text-muted-foreground">
-                      {new Date(reference.operations.find((op: any) => op.started_at)?.started_at).toLocaleString('es-ES')}
+                // Add reference creation
+                events.push({
+                  date: reference.created_at,
+                  title: 'Referencia Creada',
+                  description: `${reference.reference_number} creada`,
+                  color: 'bg-green-500',
+                  type: 'creation'
+                });
+
+                // Add operation events
+                reference.operations?.forEach((operation: any) => {
+                  if (operation.assigned_at) {
+                    events.push({
+                      date: operation.assigned_at,
+                      title: 'Operación Asignada',
+                      description: `${operation.operation_type} asignada para ejecución`,
+                      color: 'bg-blue-500',
+                      type: 'operation'
+                    });
+                  }
+
+                  if (operation.started_at) {
+                    events.push({
+                      date: operation.started_at,
+                      title: 'Operación Iniciada',
+                      description: `Inicio de ${operation.operation_type}`,
+                      color: 'bg-blue-600',
+                      type: 'operation'
+                    });
+                  }
+
+                  if (operation.completed_at) {
+                    events.push({
+                      date: operation.completed_at,
+                      title: 'Operación Completada',
+                      description: `${operation.operation_type} finalizada exitosamente`,
+                      color: 'bg-blue-700',
+                      type: 'operation'
+                    });
+                  }
+                });
+
+                // Add lab analysis events
+                reference.lab_analysis?.forEach((analysis: any) => {
+                  if (analysis.created_at) {
+                    events.push({
+                      date: analysis.created_at,
+                      title: 'Análisis Programado',
+                      description: 'Análisis de laboratorio programado',
+                      color: 'bg-purple-400',
+                      type: 'lab'
+                    });
+                  }
+
+                  if (analysis.sample_received_at) {
+                    events.push({
+                      date: analysis.sample_received_at,
+                      title: 'Muestra Recibida',
+                      description: 'Muestra recibida en laboratorio',
+                      color: 'bg-purple-500',
+                      type: 'lab'
+                    });
+                  }
+
+                  if (analysis.started_at) {
+                    events.push({
+                      date: analysis.started_at,
+                      title: 'Análisis Iniciado',
+                      description: 'Análisis de laboratorio en progreso',
+                      color: 'bg-purple-600',
+                      type: 'lab'
+                    });
+                  }
+
+                  if (analysis.completed_at) {
+                    events.push({
+                      date: analysis.completed_at,
+                      title: 'Análisis Completado',
+                      description: 'Análisis de laboratorio finalizado',
+                      color: 'bg-purple-700',
+                      type: 'lab'
+                    });
+                  }
+
+                  if (analysis.certified_at) {
+                    events.push({
+                      date: analysis.certified_at,
+                      title: 'Resultados Certificados',
+                      description: 'Resultados certificados y validados',
+                      color: 'bg-green-600',
+                      type: 'certification'
+                    });
+                  }
+                });
+
+                // Sort events by date (newest first)
+                events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+                return events.map((event, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <div className={`w-2 h-2 ${event.color} rounded-full mt-2 flex-shrink-0`}></div>
+                    <div className="text-sm flex-1 min-w-0">
+                      <div className="font-medium">{event.title}</div>
+                      <div className="text-muted-foreground text-xs">
+                        {event.description}
+                      </div>
+                      <div className="text-muted-foreground text-xs mt-1">
+                        {new Date(event.date).toLocaleString('es-ES')}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                ));
+              })()}
 
-              {reference.lab_analysis?.some((lab: any) => lab.completed_at) && (
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <div className="text-sm">
-                    <div className="font-medium">Análisis Completado</div>
-                    <div className="text-muted-foreground">
-                      {new Date(reference.lab_analysis.find((lab: any) => lab.completed_at)?.completed_at).toLocaleString('es-ES')}
-                    </div>
-                  </div>
+              {reference.operations?.length === 0 && reference.lab_analysis?.length === 0 && (
+                <div className="text-sm text-muted-foreground text-center py-4">
+                  No hay eventos adicionales registrados
                 </div>
               )}
             </CardContent>

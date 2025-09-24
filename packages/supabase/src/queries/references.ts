@@ -68,13 +68,18 @@ export async function createReference(data: Omit<ServiceReferenceInsert, 'refere
   const supabase = getSupabaseAdminClient();
 
   try {
+    console.log('Starting reference creation with admin client...');
+
     // Generate reference number using the database function
     const { data: refNumber, error: refError } = await supabase
       .rpc('generate_reference_number');
 
     if (refError) {
+      console.error('Reference number generation error:', refError);
       throw new Error(`Error generating reference number: ${refError.message}`);
     }
+
+    console.log('Generated reference number:', refNumber);
 
     // Create the reference with the generated number
     const { data: reference, error } = await supabase
@@ -87,11 +92,18 @@ export async function createReference(data: Omit<ServiceReferenceInsert, 'refere
       .single();
 
     if (error) {
+      console.error('Reference creation error:', error);
       throw new Error(`Error creating reference: ${error.message}`);
     }
 
-    // Automatically create operation task
-    const { error: operationError } = await supabase
+    console.log('Reference created successfully:', reference);
+
+    // Use a separate admin client instance for operations to ensure proper permissions
+    const operationsClient = getSupabaseAdminClient();
+
+    // Create operation task with explicit role usage
+    console.log('Creating operation task...');
+    const { data: operationData, error: operationError } = await operationsClient
       .from('operations')
       .insert({
         reference_id: reference.id,
@@ -100,15 +112,21 @@ export async function createReference(data: Omit<ServiceReferenceInsert, 'refere
         priority: data.priority || 'normal',
         created_at: new Date().toISOString(),
         notes: `Operación de muestreo para ${reference.reference_number}`,
-      });
+      })
+      .select()
+      .single();
 
     if (operationError) {
-      console.warn('Warning: Could not create operation task:', operationError.message);
-      // Don't throw error, just warn - reference creation should succeed
+      console.error('Operation creation error:', operationError);
+      // For now, throw the error to see what's happening
+      throw new Error(`Error creating operation task: ${operationError.message}`);
     }
 
-    // Automatically create lab analysis task
-    const { error: labError } = await supabase
+    console.log('Operation created successfully:', operationData);
+
+    // Create lab analysis task
+    console.log('Creating lab analysis task...');
+    const { data: labData, error: labError } = await operationsClient
       .from('lab_analysis')
       .insert({
         reference_id: reference.id,
@@ -117,12 +135,16 @@ export async function createReference(data: Omit<ServiceReferenceInsert, 'refere
         priority: data.priority || 'normal',
         created_at: new Date().toISOString(),
         notes: `Análisis de laboratorio para ${reference.reference_number}`,
-      });
+      })
+      .select()
+      .single();
 
     if (labError) {
-      console.warn('Warning: Could not create lab analysis task:', labError.message);
-      // Don't throw error, just warn - reference creation should succeed
+      console.error('Lab analysis creation error:', labError);
+      throw new Error(`Error creating lab analysis task: ${labError.message}`);
     }
+
+    console.log('Lab analysis created successfully:', labData);
 
     return reference as ServiceReference;
   } catch (error) {

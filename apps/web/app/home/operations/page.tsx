@@ -11,11 +11,30 @@ import {
   TableHeader,
   TableRow,
 } from '@kit/ui/table';
-import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@kit/ui/dialog';
+import { Input } from '@kit/ui/input';
+import { Label } from '@kit/ui/label';
+import { Textarea } from '@kit/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@kit/ui/select';
+import { CheckCircle, Clock, AlertCircle, Truck, Thermometer, FileText } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getOperations, assignOperationToUser, updateOperation } from '@kit/supabase/queries/operations';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 
 function getStatusBadge(status: string) {
@@ -35,6 +54,191 @@ function getStatusBadge(status: string) {
       <Icon className="h-3 w-3" />
       {config.label}
     </Badge>
+  );
+}
+
+function SamplingDataModal({ operation, onComplete }: { operation: any, onComplete: (data: any) => void }) {
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    scenario: '',
+    placa_vehiculo: '',
+    manifiesto_numero: '',
+    temperatura_muestra: '',
+    cantidad_muestra: '',
+    unidades_muestra: 'kg',
+    condiciones_muestra: '',
+    observaciones: ''
+  });
+
+  const handleSubmit = () => {
+    if (!formData.scenario || !formData.cantidad_muestra) {
+      toast.error('Por favor complete los campos requeridos');
+      return;
+    }
+
+    onComplete({
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+      sample_quantity: parseFloat(formData.cantidad_muestra),
+      sample_units: formData.unidades_muestra,
+      sampling_data: {
+        scenario: formData.scenario,
+        placa_vehiculo: formData.placa_vehiculo,
+        manifiesto_numero: formData.manifiesto_numero,
+        temperatura_muestra: formData.temperatura_muestra,
+        condiciones_muestra: formData.condiciones_muestra,
+        observaciones: formData.observaciones,
+        fecha_muestreo: new Date().toISOString()
+      },
+      notes: `Operación completada - Escenario: ${formData.scenario}, Cantidad: ${formData.cantidad_muestra} ${formData.unidades_muestra}`
+    });
+
+    setOpen(false);
+    setFormData({
+      scenario: '',
+      placa_vehiculo: '',
+      manifiesto_numero: '',
+      temperatura_muestra: '',
+      cantidad_muestra: '',
+      unidades_muestra: 'kg',
+      condiciones_muestra: '',
+      observaciones: ''
+    });
+  };
+
+  return (
+    <>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setOpen(true)}
+      >
+        Completar
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5" />
+              Datos de Muestreo - {operation.service_references?.reference_number}
+            </DialogTitle>
+            <DialogDescription>
+              Complete los datos detallados del muestreo para finalizar la operación
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="scenario">Escenario de Muestreo *</Label>
+              <Select value={formData.scenario} onValueChange={(value) => setFormData(prev => ({ ...prev, scenario: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar escenario" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mina">Mina</SelectItem>
+                  <SelectItem value="tren">Tren</SelectItem>
+                  <SelectItem value="tractomula">Tractomula</SelectItem>
+                  <SelectItem value="pila">Pila</SelectItem>
+                  <SelectItem value="acopio">Acopio</SelectItem>
+                  <SelectItem value="barco">Barco/Buque</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="placa">Placa Vehículo</Label>
+              <Input
+                id="placa"
+                value={formData.placa_vehiculo}
+                onChange={(e) => setFormData(prev => ({ ...prev, placa_vehiculo: e.target.value }))}
+                placeholder="Ej: ABC-123"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="manifiesto">Número de Manifiesto</Label>
+              <Input
+                id="manifiesto"
+                value={formData.manifiesto_numero}
+                onChange={(e) => setFormData(prev => ({ ...prev, manifiesto_numero: e.target.value }))}
+                placeholder="Ej: MAN-2025-001"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="temperatura" className="flex items-center gap-1">
+                <Thermometer className="h-4 w-4" />
+                Temperatura Muestra (°C)
+              </Label>
+              <Input
+                id="temperatura"
+                type="number"
+                value={formData.temperatura_muestra}
+                onChange={(e) => setFormData(prev => ({ ...prev, temperatura_muestra: e.target.value }))}
+                placeholder="Ej: 25"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cantidad">Cantidad Muestra *</Label>
+              <Input
+                id="cantidad"
+                type="number"
+                value={formData.cantidad_muestra}
+                onChange={(e) => setFormData(prev => ({ ...prev, cantidad_muestra: e.target.value }))}
+                placeholder="Ej: 50"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="unidades">Unidades</Label>
+              <Select value={formData.unidades_muestra} onValueChange={(value) => setFormData(prev => ({ ...prev, unidades_muestra: value }))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="kg">kg</SelectItem>
+                  <SelectItem value="ton">Toneladas</SelectItem>
+                  <SelectItem value="lb">Libras</SelectItem>
+                  <SelectItem value="g">Gramos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="condiciones">Condiciones de la Muestra</Label>
+            <Input
+              id="condiciones"
+              value={formData.condiciones_muestra}
+              onChange={(e) => setFormData(prev => ({ ...prev, condiciones_muestra: e.target.value }))}
+              placeholder="Ej: Muestra seca, sin contaminantes visibles"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="observaciones">Observaciones</Label>
+            <Textarea
+              id="observaciones"
+              value={formData.observaciones}
+              onChange={(e) => setFormData(prev => ({ ...prev, observaciones: e.target.value }))}
+              placeholder="Observaciones adicionales del muestreo..."
+              rows={3}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSubmit}>
+              Completar Operación
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -70,12 +274,8 @@ export default function OperationsPage() {
   });
 
   const completeOperationMutation = useMutation({
-    mutationFn: async (operationId: string) => {
-      return updateOperation(operationId, {
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-        notes: 'Operación completada desde el panel de control'
-      });
+    mutationFn: async ({ operationId, data }: { operationId: string, data: any }) => {
+      return updateOperation(operationId, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['operations'] });
@@ -86,6 +286,10 @@ export default function OperationsPage() {
       toast.error('Error al completar operación');
     },
   });
+
+  const handleCompleteOperation = (operationId: string, data: any) => {
+    completeOperationMutation.mutate({ operationId, data });
+  };
 
   const handleOperationAction = (operation: any) => {
     if (operation.status === 'pending') {
@@ -237,15 +441,29 @@ export default function OperationsPage() {
                         {new Date(operation.created_at).toLocaleDateString('es-ES')}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleOperationAction(operation)}
-                          disabled={assignOperationMutation.isPending || completeOperationMutation.isPending}
-                        >
-                          {operation.status === 'pending' ? 'Asignar a mí' :
-                           operation.status === 'in_progress' ? 'Completar' : 'Ver Detalles'}
-                        </Button>
+                        {operation.status === 'pending' ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => assignOperationMutation.mutate(operation.id)}
+                            disabled={assignOperationMutation.isPending}
+                          >
+                            Asignar a mí
+                          </Button>
+                        ) : operation.status === 'in_progress' ? (
+                          <SamplingDataModal
+                            operation={operation}
+                            onComplete={(data) => handleCompleteOperation(operation.id, data)}
+                          />
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleOperationAction(operation)}
+                          >
+                            Ver Detalles
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

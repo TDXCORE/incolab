@@ -11,10 +11,19 @@ import {
   TableHeader,
   TableRow,
 } from '@kit/ui/table';
-import { FlaskConical, Clock, CheckCircle, AlertTriangle, TestTube } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kit/ui/dialog';
+import { FlaskConical, Clock, CheckCircle, AlertTriangle, TestTube, Eye } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getLabAnalysis, assignAnalysisToUser, updateLabAnalysis } from '@kit/supabase/queries/lab-analysis';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 
 function getStatusBadge(status: string) {
@@ -34,6 +43,81 @@ function getStatusBadge(status: string) {
       <Icon className="h-3 w-3" />
       {config.label}
     </Badge>
+  );
+}
+
+function ResultsModal({ analysis }: { analysis: any }) {
+  const [open, setOpen] = useState(false);
+
+  if (!analysis || !analysis.results) {
+    return null;
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Eye className="mr-2 h-4 w-4" />
+          Ver Resultados
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
+            Resultados de Análisis - {analysis.service_references?.reference_number}
+          </DialogTitle>
+          <DialogDescription>
+            Cliente: {analysis.service_references?.client_name}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(analysis.results).map(([key, value]: [string, any]) => (
+              <Card key={key}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium">
+                    {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {value.value} {value.unit}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {value.method}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {analysis.qc_notes && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Notas de Control de Calidad</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm">{analysis.qc_notes}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant={analysis.qc_passed ? "secondary" : "destructive"}>
+                    {analysis.qc_passed ? "QC Aprobado" : "QC Rechazado"}
+                  </Badge>
+                  {analysis.certified_by && (
+                    <Badge variant="outline">
+                      Certificado por: {analysis.certified_by}
+                    </Badge>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="text-xs text-muted-foreground">
+            Completado el: {new Date(analysis.completed_at).toLocaleString('es-ES')}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -321,19 +405,21 @@ export default function LaboratoryPage() {
                         {new Date(analysis.created_at).toLocaleDateString('es-ES')}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleLabAction(analysis)}
-                          disabled={startAnalysisMutation.isPending || completeAnalysisMutation.isPending || analysis.status === 'completed'}
-                        >
-                          {analysis.status === 'waiting_sample'
-                            ? 'Iniciar Análisis'
-                            : analysis.status === 'completed'
-                            ? 'Ver Resultados'
-                            : 'Completar Análisis'
-                          }
-                        </Button>
+                        {analysis.status === 'completed' ? (
+                          <ResultsModal analysis={analysis} />
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleLabAction(analysis)}
+                            disabled={startAnalysisMutation.isPending || completeAnalysisMutation.isPending}
+                          >
+                            {analysis.status === 'waiting_sample'
+                              ? 'Iniciar Análisis'
+                              : 'Completar Análisis'
+                            }
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
