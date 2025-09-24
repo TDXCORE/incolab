@@ -67,29 +67,68 @@ export async function getReferenceById(id: string) {
 export async function createReference(data: Omit<ServiceReferenceInsert, 'reference_number'>) {
   const supabase = getSupabaseAdminClient();
 
-  // Generate reference number using the database function
-  const { data: refNumber, error: refError } = await supabase
-    .rpc('generate_reference_number');
+  try {
+    // Generate reference number using the database function
+    const { data: refNumber, error: refError } = await supabase
+      .rpc('generate_reference_number');
 
-  if (refError) {
-    throw new Error(`Error generating reference number: ${refError.message}`);
+    if (refError) {
+      throw new Error(`Error generating reference number: ${refError.message}`);
+    }
+
+    // Create the reference with the generated number
+    const { data: reference, error } = await supabase
+      .from('service_references')
+      .insert({
+        ...data,
+        reference_number: refNumber as string,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Error creating reference: ${error.message}`);
+    }
+
+    // Automatically create operation task
+    const { error: operationError } = await supabase
+      .from('operations')
+      .insert({
+        reference_id: reference.id,
+        operation_type: 'sampling',
+        status: 'pending',
+        priority: data.priority || 'normal',
+        created_at: new Date().toISOString(),
+        notes: `Operación de muestreo para ${reference.reference_number}`,
+      });
+
+    if (operationError) {
+      console.warn('Warning: Could not create operation task:', operationError.message);
+      // Don't throw error, just warn - reference creation should succeed
+    }
+
+    // Automatically create lab analysis task
+    const { error: labError } = await supabase
+      .from('lab_analysis')
+      .insert({
+        reference_id: reference.id,
+        analysis_type: ['general'], // Default analysis type
+        status: 'waiting_sample',
+        priority: data.priority || 'normal',
+        created_at: new Date().toISOString(),
+        notes: `Análisis de laboratorio para ${reference.reference_number}`,
+      });
+
+    if (labError) {
+      console.warn('Warning: Could not create lab analysis task:', labError.message);
+      // Don't throw error, just warn - reference creation should succeed
+    }
+
+    return reference as ServiceReference;
+  } catch (error) {
+    console.error('Error in createReference:', error);
+    throw error;
   }
-
-  // Create the reference with the generated number
-  const { data: reference, error } = await supabase
-    .from('service_references')
-    .insert({
-      ...data,
-      reference_number: refNumber as string,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Error creating reference: ${error.message}`);
-  }
-
-  return reference as ServiceReference;
 }
 
 /**

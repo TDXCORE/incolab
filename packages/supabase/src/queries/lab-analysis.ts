@@ -164,34 +164,43 @@ export async function assignAnalysisToUser(analysisId: string, userId: string) {
 export async function updateLabAnalysis(id: string, updates: LabAnalysisUpdate) {
   const supabase = getSupabaseAdminClient();
 
-  // If completing the analysis, set completion timestamp
-  if (updates.status === 'completed' && !updates.completed_at) {
-    updates.completed_at = new Date().toISOString();
+  try {
+    // If completing the analysis, set completion timestamp
+    if (updates.status === 'completed' && !updates.completed_at) {
+      updates.completed_at = new Date().toISOString();
+    }
+
+    // If starting the analysis, set start timestamp
+    if (updates.status === 'in_analysis' && !updates.started_at) {
+      updates.started_at = new Date().toISOString();
+    }
+
+    // If receiving sample, set received timestamp
+    if (updates.sample_received_at && !updates.started_at) {
+      updates.started_at = new Date().toISOString();
+      updates.status = 'in_analysis';
+    }
+
+    console.log('Updating lab analysis with data:', { id, updates });
+
+    const { data, error } = await supabase
+      .from('lab_analysis')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error details:', error);
+      throw new Error(`Error updating lab analysis: ${error.message}`);
+    }
+
+    console.log('Lab analysis updated successfully:', data);
+    return data as LabAnalysis;
+  } catch (error) {
+    console.error('Error in updateLabAnalysis:', error);
+    throw error;
   }
-
-  // If starting the analysis, set start timestamp
-  if (updates.status === 'in_analysis' && !updates.started_at) {
-    updates.started_at = new Date().toISOString();
-  }
-
-  // If receiving sample, set received timestamp
-  if (updates.sample_received_at && !updates.started_at) {
-    updates.started_at = new Date().toISOString();
-    updates.status = 'in_analysis';
-  }
-
-  const { data, error } = await supabase
-    .from('lab_analysis')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Error updating lab analysis: ${error.message}`);
-  }
-
-  return data as LabAnalysis;
 }
 
 /**

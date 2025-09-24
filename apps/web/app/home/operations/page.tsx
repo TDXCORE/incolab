@@ -94,10 +94,13 @@ export default function OperationsPage() {
       completeOperationMutation.mutate(operation.id);
     } else {
       // For completed operations, navigate to the reference detail page
-      if (operation.service_references?.id) {
+      if (operation.reference_id) {
+        router.push(`/home/references/${operation.reference_id}`);
+      } else if (operation.service_references?.id) {
         router.push(`/home/references/${operation.service_references.id}`);
       } else {
         toast.error('No se pudo encontrar la referencia asociada');
+        console.error('Operation data:', operation);
       }
     }
   };

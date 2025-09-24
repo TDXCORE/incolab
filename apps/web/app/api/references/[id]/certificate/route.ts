@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@kit/supabase/server-client';
+import { getSupabaseAdminClient } from '@kit/supabase/browser-client';
 
 /**
  * Generate and download a certificate PDF for a reference
@@ -11,8 +11,8 @@ export async function GET(
   try {
     const referenceId = params.id;
 
-    // Get Supabase server client
-    const supabase = getSupabaseServerClient();
+    // Get Supabase admin client
+    const supabase = getSupabaseAdminClient();
 
     // Get the reference with all related data
     const { data: reference, error } = await supabase
