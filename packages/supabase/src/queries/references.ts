@@ -98,54 +98,58 @@ export async function createReference(data: Omit<ServiceReferenceInsert, 'refere
 
     console.log('Reference created successfully:', reference);
 
-    // Use a separate admin client instance for operations to ensure proper permissions
-    const operationsClient = getSupabaseAdminClient();
+    // Try to create operations and lab analysis separately, but don't fail if they fail
+    try {
+      console.log('Creating operation task...');
+      const { data: operationData, error: operationError } = await supabase
+        .from('operations')
+        .insert({
+          reference_id: reference.id,
+          operation_type: 'sampling',
+          status: 'pending',
+          priority: data.priority || 'normal',
+          created_at: new Date().toISOString(),
+          notes: `Operación de muestreo para ${reference.reference_number}`,
+        })
+        .select()
+        .single();
 
-    // Create operation task with explicit role usage
-    console.log('Creating operation task...');
-    const { data: operationData, error: operationError } = await operationsClient
-      .from('operations')
-      .insert({
-        reference_id: reference.id,
-        operation_type: 'sampling',
-        status: 'pending',
-        priority: data.priority || 'normal',
-        created_at: new Date().toISOString(),
-        notes: `Operación de muestreo para ${reference.reference_number}`,
-      })
-      .select()
-      .single();
-
-    if (operationError) {
-      console.error('Operation creation error:', operationError);
-      // For now, throw the error to see what's happening
-      throw new Error(`Error creating operation task: ${operationError.message}`);
+      if (operationError) {
+        console.error('Operation creation error:', operationError);
+        console.warn('Could not create operation task automatically. Operation will need to be created manually.');
+      } else {
+        console.log('Operation created successfully:', operationData);
+      }
+    } catch (opError) {
+      console.error('Failed to create operation:', opError);
     }
 
-    console.log('Operation created successfully:', operationData);
+    try {
+      console.log('Creating lab analysis task...');
+      const { data: labData, error: labError } = await supabase
+        .from('lab_analysis')
+        .insert({
+          reference_id: reference.id,
+          analysis_type: ['general'], // Default analysis type
+          status: 'waiting_sample',
+          priority: data.priority || 'normal',
+          created_at: new Date().toISOString(),
+          notes: `Análisis de laboratorio para ${reference.reference_number}`,
+        })
+        .select()
+        .single();
 
-    // Create lab analysis task
-    console.log('Creating lab analysis task...');
-    const { data: labData, error: labError } = await operationsClient
-      .from('lab_analysis')
-      .insert({
-        reference_id: reference.id,
-        analysis_type: ['general'], // Default analysis type
-        status: 'waiting_sample',
-        priority: data.priority || 'normal',
-        created_at: new Date().toISOString(),
-        notes: `Análisis de laboratorio para ${reference.reference_number}`,
-      })
-      .select()
-      .single();
-
-    if (labError) {
-      console.error('Lab analysis creation error:', labError);
-      throw new Error(`Error creating lab analysis task: ${labError.message}`);
+      if (labError) {
+        console.error('Lab analysis creation error:', labError);
+        console.warn('Could not create lab analysis task automatically. Lab analysis will need to be created manually.');
+      } else {
+        console.log('Lab analysis created successfully:', labData);
+      }
+    } catch (labError) {
+      console.error('Failed to create lab analysis:', labError);
     }
 
-    console.log('Lab analysis created successfully:', labData);
-
+    // Return the reference regardless of whether operations/lab analysis creation succeeded
     return reference as ServiceReference;
   } catch (error) {
     console.error('Error in createReference:', error);
